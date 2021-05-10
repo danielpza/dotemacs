@@ -343,13 +343,14 @@
   :straight t
   :bind
   ([remap describe-function] . helpful-callable)
+  ([remap describe-command] . helpful-command)
   ([remap describe-variable] . helpful-variable)
   ([remap describe-key] . helpful-key))
 
 (use-package treemacs
   :straight t
   :init
-  (defun my/open-treemacs-hack()
+  (defun my/open-treemacs-hack ()
     (interactive)
     (call-interactively 'treemacs-display-current-project-exclusively)
     (treemacs-select-window))
@@ -383,3 +384,6 @@
   :after all-the-icons
   :hook (dired-mode . all-the-icons-dired-mode))
 ;;-others
+
+;; Make gc pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))
