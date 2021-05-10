@@ -227,17 +227,21 @@
     "Typescript JSX")
   (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-react-mode)))
 
+(use-package flymake-eslint
+  :straight t
+  :commands (flymake-eslint-enable)
+  :hook ((js-mode typescript-mode typescript-react-mode) . flymake-eslint-enable))
+
 (use-package eglot
   :straight t
   ;; :ensure-system-package ((typescript-language-server . "npm install --global typescript-language-server")
   ;;			  (eslint-lsp . "npm install --global danielpza/eslint-lsp"))
   :init
-  ;; (defun my/eglot-ensure ()
-  ;;   (eglot-ensure)
-  ;;   (setq-local eglot-stay-out-of '(flymake))
-  ;;   (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t)
-  ;;   )
-  :hook ((js-mode typescript-mode typescript-react-mode) . eglot-ensure)
+  (defun my/eglot-ensure ()
+    (eglot-ensure)
+    (setq-local eglot-stay-out-of '(flymake))
+    (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t))
+  :hook ((js-mode typescript-mode typescript-react-mode) . my/eglot-ensure)
   :bind
   (:map leader-map
 	("l r" . eglot-rename)
@@ -247,9 +251,7 @@
   :custom
   (eglot-confirm-server-initiated-edits nil)
   ;; :config
-  (put 'typescript-react-mode 'eglot-language-id "typescriptreact")
-  (add-to-list 'eglot-server-programs `(typescript-react-mode . ("typescript-language-server" "--stdio")))
-  )
+  (add-to-list 'eglot-server-programs `((typescript-react-mode :language-id  "typescriptreact") . ("typescript-language-server" "--stdio"))))
 ;;-code
 
 ;;+evil
