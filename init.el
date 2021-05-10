@@ -30,6 +30,20 @@
   :config
   (delete-selection-mode +1))
 
+(use-package flymake
+  :init
+  (defun my/flymake-goto-next-important-error ()
+    (interactive)
+    (let ((current-prefix-arg '(4))) (call-interactively 'flymake-goto-next-error)))
+  (defun my/flymake-goto-prev-important-error ()
+    (interactive)
+    (let ((current-prefix-arg '(4))) (call-interactively 'flymake-goto-prev-error)))
+  :bind
+  (:map leader-map
+	("e n" . my/flymake-goto-next-important-error)
+	("e p" . my/flymake-goto-prev-important-error)
+	("e l" . flymake-show-diagnostics-buffer)))
+
 (use-package emacs
   :init
   (fset 'yes-or-no-p 'y-or-n-p)
@@ -65,13 +79,6 @@
 	   (t
 	    (rename-file filename new-name t)
 	    (set-visited-file-name new-name t t)))))))
-  ;; flymake helpers
-  (defun my/flymake-goto-next-important-error ()
-    (interactive)
-    (let ((current-prefix-arg '(4))) (call-interactively 'flymake-goto-next-error)))
-  (defun my/flymake-goto-prev-important-error ()
-    (interactive)
-    (let ((current-prefix-arg '(4))) (call-interactively 'flymake-goto-prev-error)))
   ;; switch-to-last-buffer
   ;; https://reddit.com/r/emacs/comments/2jzkz7/quickly_switch_to_previous_buffer/
   (defun my/switch-to-last-buffer ()
@@ -93,10 +100,6 @@
 	("f r" . recentf-open-files)
 	("f D" . my/delete-file-and-buffer)
 	("f R" . my/rename-file-and-buffer)
-
-	("e n" . my/flymake-goto-next-important-error)
-	("e p" . my/flymake-goto-prev-important-error)
-	("e l" . flymake-show-diagnostics-buffer)
 
 	("d d" . my/find-user-init-file)
 
