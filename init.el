@@ -383,6 +383,13 @@
   :straight t
   :after all-the-icons
   :hook (dired-mode . all-the-icons-dired-mode))
+
+(use-package prodigy
+  :straight t
+  :bind
+  (:map leader-map ("c P" . prodigy))
+  :config
+  (load (concat user-emacs-directory "var/prodigy.el") t))
 ;;-others
 
 ;; Make gc pauses faster by decreasing the threshold.
