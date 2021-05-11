@@ -1,5 +1,7 @@
 (require 'early-init (concat user-emacs-directory "early-init.el"))
 
+(global-display-line-numbers-mode)
+
 ;;;+straight bootstrap
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -163,6 +165,10 @@
   (with-eval-after-load 'evil
     (define-key evil-insert-state-map (kbd "C-SPC") 'company-complete)))
 
+(use-package company-box
+  :straight t
+  :hook (company-mode . company-box-mode))
+
 (use-package marginalia
   :straight t
   :config
@@ -208,7 +214,9 @@
   :straight t
   :bind
   (:map leader-map
-	("g g" . magit-status)))
+	("g g" . magit-status)
+	("g b" . magit-blame)
+	("g l" . magit-log-buffer-file)))
 ;;-magit
 
 ;;+code
@@ -218,14 +226,7 @@
 
 (use-package typescript-mode
   :straight t
-  :demand t
-  ;; :mode "\\.ts\\'"
-  :config
-  ;; https://github.com/joaotavora/eglot/issues/624
-  ;; https://github.com/mohkale/emacs/blob/master/init.org#typescript
-  (define-derived-mode typescript-react-mode typescript-mode
-    "Typescript JSX")
-  (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-react-mode)))
+  :mode "\\.tsx?\\'")
 
 (use-package flymake-eslint
   :straight t
@@ -233,6 +234,7 @@
   :hook ((js-mode typescript-mode typescript-react-mode) . flymake-eslint-enable))
 
 (use-package eglot
+  :disabled
   :straight t
   ;; :ensure-system-package ((typescript-language-server . "npm install --global typescript-language-server")
   ;;			  (eslint-lsp . "npm install --global danielpza/eslint-lsp"))
@@ -249,9 +251,17 @@
 	("l i" . eglot-code-action-organize-imports)
 	("l S" . eglot-shutdown-all))
   :custom
-  (eglot-confirm-server-initiated-edits nil)
-  ;; :config
-  (add-to-list 'eglot-server-programs `((typescript-react-mode :language-id  "typescriptreact") . ("typescript-language-server" "--stdio"))))
+  (eglot-confirm-server-initiated-edits nil))
+
+(use-package lsp-mode
+  :straight t
+  :hook ((js-mode typescript-mode) . lsp-deferred)
+  :config
+  (define-key leader-map (kbd "l") lsp-command-map))
+
+(use-package lsp-ui
+  :straight t
+  :after lsp-mode)
 ;;-code
 
 ;;+evil
@@ -390,6 +400,26 @@
   (:map leader-map ("c P" . prodigy))
   :config
   (load (concat user-emacs-directory "var/prodigy.el") t))
+
+(use-package apheleia
+  :straight '(apheleia :host github :repo "raxod502/apheleia")
+  :init
+  (defun setup-format-buffer-apheleia()
+    (setq-local format-buffer-fn 'apheleia-format-buffer))
+  :hook ((typescript-mode typescript-react-mode js-mode scss-mode) . setup-format-buffer-apheleia))
+
+(use-package diff-hl
+  :straight t
+  :demand
+  :hook ((magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
+	 (magit-post-refresh-hook . diff-hl-magit-post-refresh))
+  :bind
+  (:map leader-map
+	("g [" . diff-hl-previous-hunk)
+	("g ]" . diff-hl-next-hunk))
+  :config
+  (global-diff-hl-mode 1)
+  (diff-hl-flydiff-mode 1))
 ;;-others
 
 ;; Make gc pauses faster by decreasing the threshold.
