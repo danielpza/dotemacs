@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t -*-
 (require 'early-init (concat user-emacs-directory "early-init.el"))
 
 (global-display-line-numbers-mode)
