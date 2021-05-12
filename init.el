@@ -238,8 +238,11 @@
 
 (use-package flymake-eslint
   :straight t
-  :commands (flymake-eslint-enable)
-  :hook ((js-mode typescript-mode typescript-react-mode) . flymake-eslint-enable))
+  :init
+  (defun my/flymake-eslint-enable ()
+    (unless (string= (file-name-extension (buffer-file-name)) "json")
+      (flymake-eslint-enable)))
+  :hook ((js-mode typescript-mode typescript-react-mode) . my/flymake-eslint-enable))
 
 (use-package eglot
   :disabled
