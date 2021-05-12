@@ -87,6 +87,10 @@
   (defun my/switch-to-last-buffer ()
     (interactive)
     (switch-to-buffer nil))
+  ;; reset text scale
+  (defun my/text-scale-reset ()
+    (interactive)
+    (text-scale-set 0))
   :custom
   (auto-save-default nil)
   (create-lockfiles nil)
@@ -94,6 +98,9 @@
   (tab-always-indent 'complete)
   :bind
   ("<f5>" . load-theme)
+  ("C--" . text-scale-decrease)
+  ("C-+" . text-scale-increase)
+  ("C-=" . my/text-scale-reset)
   (:map leader-map
 	("SPC" . execute-extended-command)
 	("TAB" . my/switch-to-last-buffer)
