@@ -117,7 +117,10 @@
 	("b b" . switch-to-buffer)
 	("b r" . revert-buffer))
   :bind-keymap
-  ("C-c SPC" . leader-map))
+  ("C-c SPC" . leader-map)
+  :config
+  (unbind-key "C-k")
+  (unbind-key "C-j"))
 
 (use-package help
   :config
@@ -291,6 +294,7 @@
   (:map evil-normal-state-map ("z l" . hs-hide-level))
   :config
   (define-key leader-map (kbd "w") evil-window-map)
+  (unbind-key "C-f" evil-motion-state-map)
   (evil-mode 1))
 
 (use-package evil-collection
