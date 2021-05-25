@@ -272,8 +272,9 @@
 
 (use-package lsp-mode
   :straight t
-  :hook ((js-mode typescript-mode) . lsp-deferred)
+  :hook ((js-mode typescript-mode lua-mode) . lsp-deferred)
   :config
+  (setq read-process-output-max (* 1024 1024)) ;; 1mb
   (define-key leader-map (kbd "l") lsp-command-map))
 
 (use-package lsp-ui
