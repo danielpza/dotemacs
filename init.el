@@ -227,7 +227,10 @@
   (:map leader-map
 	("g g" . magit-status)
 	("g b" . magit-blame)
-	("g l" . magit-log-buffer-file)))
+	("g s" . magit-stage-file)
+	("g u" . magit-unstage-file)
+	("g d" . magit-file-dispatch)
+	("g l b" . magit-log-buffer-file)))
 ;;-magit
 
 ;;+code
