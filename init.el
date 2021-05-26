@@ -422,10 +422,13 @@
 
 (use-package apheleia
   :straight '(apheleia :host github :repo "raxod502/apheleia")
+  :demand
   :init
   (defun setup-format-buffer-apheleia()
     (setq-local format-buffer-fn 'apheleia-format-buffer))
-  :hook ((typescript-mode typescript-react-mode js-mode scss-mode) . setup-format-buffer-apheleia))
+  :hook ((typescript-mode typescript-react-mode js-mode scss-mode) . setup-format-buffer-apheleia)
+  :config
+  (apheleia-global-mode 1))
 
 (use-package diff-hl
   :straight t
