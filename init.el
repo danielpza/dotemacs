@@ -452,8 +452,8 @@
   :config
   (defhydra hydra-zoom (leader-map "B")
     "buffer"
-    ("n" next-buffer "next buffer")
-    ("p" previous-buffer "previous buffer")
+    ("n" centaur-tabs-forward "next buffer")
+    ("p" centaur-tabs-backward "previous buffer")
     ("d" kill-current-buffer "delete")))
 
 (use-package centaur-tabs
