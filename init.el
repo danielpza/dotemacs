@@ -176,10 +176,6 @@
   (with-eval-after-load 'evil
     (define-key evil-insert-state-map (kbd "C-SPC") 'company-complete)))
 
-(use-package company-box
-  :straight t
-  :hook (company-mode . company-box-mode))
-
 (use-package marginalia
   :straight t
   :config
@@ -450,3 +446,20 @@
 (use-package lua-mode
   :straight t
   :mode "\\.lua\\'")
+
+;; others
+(use-package git-link
+  :straight t
+  :custom
+  (git-link-default-branch "master")
+  (git-link-default-remote "origin")
+  :bind
+  (:map leader-map
+	("g l l" . git-link)))
+
+(use-package copy-as-format
+  :straight t
+  :bind
+  (:map leader-map
+	("g c s" . copy-as-format-slack)
+	("g c g" . copy-as-format-github)))
