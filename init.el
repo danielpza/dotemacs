@@ -447,6 +447,15 @@
   :straight t
   :mode "\\.lua\\'")
 
+(use-package hydra
+  :straight t
+  :config
+  (defhydra hydra-zoom (leader-map "B")
+    "buffer"
+    ("n" next-buffer "next buffer")
+    ("p" previous-buffer "previous buffer")
+    ("d" kill-current-buffer "delete")))
+
 ;; others
 (use-package git-link
   :straight t
