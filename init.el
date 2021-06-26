@@ -456,6 +456,21 @@
     ("p" previous-buffer "previous buffer")
     ("d" kill-current-buffer "delete")))
 
+(use-package centaur-tabs
+  :straight t
+  :demand
+  :custom
+  (centaur-tabs-set-icons t)
+  (centaur-tabs-gray-out-icons 'buffer)
+  (centaur-tabs-set-modified-marker t)
+  (centaur-tabs-modified-marker "*")
+  (centaur-tabs-cycle-scope 'tabs)
+  :config
+  (centaur-tabs-mode t)
+  :bind
+  ("C-<tab>" . centaur-tabs-forward)
+  ("C-<iso-lefttab>" . centaur-tabs-backward))
+
 ;; others
 (use-package git-link
   :straight t
