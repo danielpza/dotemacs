@@ -122,6 +122,11 @@
   (unbind-key "C-k")
   (unbind-key "C-j"))
 
+(use-package dired
+  :bind
+  (:map leader-map
+	("a d" . dired)))
+
 (use-package help
   :config
   (define-key leader-map (kbd "h") help-map))
@@ -219,6 +224,8 @@
 ;;+magit
 (use-package magit
   :straight t
+  :custom
+  (magit-save-repository-buffers nil)
   :bind
   (:map leader-map
 	("g g" . magit-status)
@@ -243,7 +250,9 @@
   :init
   (defun my/flymake-eslint-enable ()
     (unless (string= (file-name-extension (buffer-file-name)) "json")
-      (flymake-eslint-enable)))
+      (flymake-eslint-enable)
+      ;; https://github.com/orzechowskid/flymake-eslint/issues/19#issuecomment-559833671
+      (setq-local flymake-eslint-project-root (locate-dominating-file buffer-file-name ".eslintrc"))))
   :hook ((js-mode typescript-mode typescript-react-mode) . my/flymake-eslint-enable))
 
 (use-package eglot
@@ -289,6 +298,7 @@
   (evil-want-Y-yank-to-eol t)
   (evil-undo-system 'undo-redo)
   (evil-respect-visual-line-mode t)
+  (evil-collection-company-use-tng nil) ;; make enter work
   :bind
   ([remap evil-goto-definition] . xref-find-definitions)
   (:map evil-normal-state-map ("z l" . hs-hide-level))
@@ -422,7 +432,7 @@
   :init
   (defun setup-format-buffer-apheleia()
     (setq-local format-buffer-fn 'apheleia-format-buffer))
-  :hook ((typescript-mode typescript-react-mode js-mode scss-mode) . setup-format-buffer-apheleia)
+  :hook ((markdown-mode typescript-mode typescript-react-mode js-mode scss-mode) . setup-format-buffer-apheleia)
   :config
   (apheleia-global-mode 1))
 
