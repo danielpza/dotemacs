@@ -63,10 +63,11 @@
       (when filename
 	(if (vc-backend filename)
 	    (vc-delete-file filename)
-	  (when (y-or-n-p (format "Are you sure you want to delete %s? " filename))
-	    (delete-file filename delete-by-moving-to-trash)
-	    (message "Deleted file %s" filename)
-	    (kill-buffer))))))
+	  ;; (when (y-or-n-p (format "Are you sure you want to delete %s? " filename))
+	  (delete-file filename delete-by-moving-to-trash)
+	  (message "Deleted file %s" filename)
+	  (kill-buffer);; )
+	  ))))
   ;; https://github.com/bbatsov/crux/blob/master/crux.el#L409
   (defun my/rename-file-and-buffer ()
     "Rename current buffer and if the buffer is visiting a file, rename it too."
@@ -97,7 +98,7 @@
   (make-backup-files nil)
   (tab-always-indent 'complete)
   :bind
-  ("<f5>" . load-theme)
+  ("<f6>" . load-theme)
   ("C--" . text-scale-decrease)
   ("C-+" . text-scale-increase)
   ("C-=" . my/text-scale-reset)
@@ -357,7 +358,8 @@
   (dashboard-set-heading-icons t)
   (dashboard-set-file-icons t)
   :config
-  (dashboard-setup-startup-hook))
+  (dashboard-setup-startup-hook)
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
 
 (use-package all-the-icons
   :straight t)
@@ -453,6 +455,8 @@
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
 
+(electric-pair-mode)
+
 (use-package lua-mode
   :straight t
   :mode "\\.lua\\'")
@@ -497,3 +501,16 @@
   (:map leader-map
 	("g c s" . copy-as-format-slack)
 	("g c g" . copy-as-format-github)))
+
+(use-package quickrun
+  :straight t
+  :config
+  (quickrun-add-command "typescript"
+    '((:command . "ts-node")
+      (:exec . ("%c -T %o %s"))
+      (:remove . ("true")))
+    :override t)
+  :custom
+  (quickrun-focus-p nil)
+  :bind
+  ("<f5>" . quickrun))
