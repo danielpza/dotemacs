@@ -1,5 +1,6 @@
 ;; -*- lexical-binding: t -*-
 (require 'early-init (concat user-emacs-directory "early-init.el"))
+;; (setq debug-on-error t)
 
 (global-display-line-numbers-mode)
 
@@ -94,8 +95,8 @@
     (text-scale-set 0))
   :custom
   (auto-save-default nil)
-  (create-lockfiles nil)
-  (make-backup-files nil)
+  (create-lockfiles nil) ;; react issues
+  (make-backup-files nil) ;; react issues
   (tab-always-indent 'complete)
   :bind
   ("<f6>" . load-theme)
@@ -220,6 +221,11 @@
   ;; (xref-show-xrefs-function 'consult-xref)
   ;; (xref-show-definitions-function 'consult-xref)
   )
+
+(use-package all-the-icons-completion
+  :straight t
+  :config
+  (all-the-icons-completion-mode))
 ;;-base
 
 ;;+magit
@@ -386,25 +392,13 @@
 
 (use-package treemacs
   :straight t
-  :init
-  (defun my/open-treemacs-hack ()
-    (interactive)
-    (call-interactively 'treemacs-display-current-project-exclusively)
-    (treemacs-select-window))
   :custom
   (treemacs-pulse-on-success nil)
   :bind
-  (:map treemacs-mode-map
-	("Q" . quit-window)
-	("q" . other-window))
   (:map project-prefix-map
-	("t" . my/open-treemacs-hack))
+	("t" . treemacs-display-current-project-exclusively))
   :config
   (treemacs-follow-mode))
-
-(use-package treemacs-evil
-  :straight t
-  :after treemacs)
 
 (use-package treemacs-all-the-icons
   :straight t
@@ -514,3 +508,8 @@
   (quickrun-focus-p nil)
   :bind
   ("<f5>" . quickrun))
+
+(use-package autoinsert
+  :config
+  (setq auto-insert-alist '(".editorconfig" . "editorconfig"))
+  (auto-insert-mode))
