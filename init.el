@@ -62,13 +62,11 @@
     (interactive)
     (let ((filename (buffer-file-name)))
       (when filename
-	(if (vc-backend filename)
-	    (vc-delete-file filename)
-	  ;; (when (y-or-n-p (format "Are you sure you want to delete %s? " filename))
-	  (delete-file filename delete-by-moving-to-trash)
-	  (message "Deleted file %s" filename)
-	  (kill-buffer);; )
-	  ))))
+	;; (when (y-or-n-p (format "Are you sure you want to delete %s? " filename))
+	(delete-file filename delete-by-moving-to-trash)
+	(message "Deleted file %s" filename)
+	(kill-buffer);; )
+	)))
   ;; https://github.com/bbatsov/crux/blob/master/crux.el#L409
   (defun my/rename-file-and-buffer ()
     "Rename current buffer and if the buffer is visiting a file, rename it too."
@@ -250,6 +248,7 @@
   :config
   (define-derived-mode typescript-tsx-mode typescript-mode "tsx")
   (with-eval-after-load 'tree-sitter-langs
+    ;; https://github.com/emacs-typescript/typescript.el/issues/4#issuecomment-873485004
     (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-tsx-mode . tsx))))
 
 (use-package flymake-eslint
@@ -521,5 +520,5 @@
 
 (use-package autoinsert
   :config
-  (setq auto-insert-alist '(".editorconfig" . "editorconfig"))
+  (setq auto-insert-alist '((".editorconfig" . "editorconfig")))
   (auto-insert-mode))
