@@ -250,7 +250,12 @@
 
 (use-package typescript-mode
   :straight t
-  :mode "\\.tsx?\\'")
+  :mode (("\\.ts\\'" . typescript-mode)
+	 ("\\.tsx\\'" . typescript-tsx-mode))
+  :config
+  (define-derived-mode typescript-tsx-mode typescript-mode "tsx")
+  (with-eval-after-load 'tree-sitter-langs
+    (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-tsx-mode . tsx))))
 
 (use-package flymake-eslint
   :straight t
@@ -508,6 +513,16 @@
   (quickrun-focus-p nil)
   :bind
   ("<f5>" . quickrun))
+
+(use-package tree-sitter
+  :straight t
+  :demand
+  :hook
+  (tree-sitter-mode . tree-sitter-hl-mode)
+  :config
+  (global-tree-sitter-mode))
+
+(use-package tree-sitter-langs :straight t)
 
 (use-package autoinsert
   :config
