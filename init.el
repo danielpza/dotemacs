@@ -188,11 +188,6 @@
   :config
   (marginalia-mode))
 
-(use-package editorconfig
-  :straight t
-  :config
-  (editorconfig-mode))
-
 (use-package which-key
   :straight t
   :config
