@@ -291,6 +291,13 @@
 (use-package lsp-ui
   :straight t
   :after lsp-mode)
+
+(use-package consult-lsp
+  :straight t
+  :bind
+  (:map lsp-command-map
+	([remap xref-find-apropos] . consult-lsp-symbols)
+	("f" . consult-lsp-diagnostics)))
 ;;-code
 
 ;;+evil
@@ -309,6 +316,9 @@
   ([remap evil-goto-definition] . xref-find-definitions)
   (:map evil-normal-state-map ("z l" . hs-hide-level))
   :config
+  ;; https://emacs.stackexchange.com/a/20717/15986
+  (defalias #'forward-evil-word #'forward-evil-symbol)
+  (setq-default evil-symbol-word-search t)
   (define-key leader-map (kbd "w") evil-window-map)
   (unbind-key "C-f" evil-motion-state-map)
   (evil-mode 1))
@@ -449,6 +459,9 @@
 (setq gc-cons-threshold (* 2 1000 1000))
 
 (electric-pair-mode)
+;; (modify-syntax-entry ?_ "w")
+
+(superword-mode)
 
 (use-package lua-mode
   :straight t
@@ -522,3 +535,21 @@
   :config
   (setq auto-insert-alist '((".editorconfig" . "editorconfig")))
   (auto-insert-mode))
+
+(use-package string-inflection
+  :straight t
+  :init
+  (defun my/string-inflection-safe-javascript-kebab-case()
+    (interactive)
+    (save-excursion
+      (call-interactively 'string-inflection-kebab-case)
+      (insert  "\""))
+    (insert  "\""))
+  :bind
+  (:map leader-map
+	("i c" . string-inflection-lower-camelcase)
+	("i C" . string-inflection-camelcase)
+	("i u" . string-inflection-underscore)
+	("i k" . string-inflection-kebab-case)
+	("i j" . my/string-inflection-safe-javascript-kebab-case)
+	))
