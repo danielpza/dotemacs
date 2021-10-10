@@ -35,6 +35,7 @@
   (delete-selection-mode +1))
 
 (use-package flymake
+  :disabled
   :init
   (defun my/flymake-goto-next-important-error ()
     (interactive)
@@ -252,6 +253,7 @@
     (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-tsx-mode . tsx))))
 
 (use-package flymake-eslint
+  :disabled
   :straight t
   :init
   (defun my/flymake-eslint-enable ()
@@ -260,6 +262,14 @@
       ;; https://github.com/orzechowskid/flymake-eslint/issues/19#issuecomment-559833671
       (setq-local flymake-eslint-project-root (locate-dominating-file buffer-file-name ".eslintrc"))))
   :hook ((js-mode typescript-mode typescript-react-mode) . my/flymake-eslint-enable))
+
+(use-package flycheck
+  :straight t
+  :bind
+  (:map leader-map
+	("e n" . flycheck-next-error)
+	("e p" . flycheck-previous-error)
+	("e l" . flycheck-list-errors)))
 
 (use-package eglot
   :disabled
@@ -284,6 +294,8 @@
 (use-package lsp-mode
   :straight t
   :hook ((js-mode typescript-mode lua-mode) . lsp-deferred)
+  :custom
+  (lsp-enable-snippet nil)
   :config
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
   (define-key leader-map (kbd "l") lsp-command-map))
