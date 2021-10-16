@@ -447,6 +447,13 @@
   :straight '(apheleia :host github :repo "raxod502/apheleia")
   :demand
   :init
+  ;; https://github.com/raxod502/apheleia/issues/30#issuecomment-778150037
+  (defun shou/fix-apheleia-project-dir (orig-fn &rest args)
+    (let ((project (project-current)))
+      (if (not (null project))
+          (let ((default-directory (project-root project))) (apply orig-fn args))
+        (apply orig-fn args))))
+  (advice-add 'apheleia-format-buffer :around #'shou/fix-apheleia-project-dir)
   (defun setup-format-buffer-apheleia()
     (setq-local format-buffer-fn 'apheleia-format-buffer))
   :hook ((markdown-mode typescript-mode typescript-react-mode js-mode scss-mode) . setup-format-buffer-apheleia)
