@@ -68,21 +68,33 @@
 	(message "Deleted file %s" filename)
 	(kill-buffer);; )
 	)))
-  ;; https://github.com/bbatsov/crux/blob/master/crux.el#L409
-  (defun my/rename-file-and-buffer ()
-    "Rename current buffer and if the buffer is visiting a file, rename it too."
+  ;; https://github.com/syl20bnr/spacemacs/blob/bd7ef98e4c35fd87538dd2a81356cc83f5fd02f3/layers/%2Bdistributions/spacemacs-base/funcs.el#L294
+  (defun spacemacs/rename-current-buffer-file ()
+    "Renames current buffer and file it is visiting."
     (interactive)
-    (let ((filename (buffer-file-name)))
+    (let* ((name (buffer-name))
+           (filename (buffer-file-name)))
       (if (not (and filename (file-exists-p filename)))
-	  (rename-buffer (read-from-minibuffer "New name: " (buffer-name)))
-	(let* ((new-name (read-file-name "New name: " (file-name-directory filename)))
-	       (containing-dir (file-name-directory new-name)))
-	  (make-directory containing-dir t)
-	  (cond
-	   ((vc-backend filename) (vc-rename-file filename new-name))
-	   (t
-	    (rename-file filename new-name t)
-	    (set-visited-file-name new-name t t)))))))
+          (error "Buffer '%s' is not visiting a file!" name)
+	(let* ((dir (file-name-directory filename))
+               (new-name (read-file-name "New name: " dir)))
+          (cond ((get-buffer new-name)
+		 (error "A buffer named '%s' already exists!" new-name))
+		(t
+		 (let ((dir (file-name-directory new-name)))
+                   (when (and (not (file-exists-p dir)) (yes-or-no-p (format "Create directory '%s'?" dir)))
+                     (make-directory dir t)))
+		 (rename-file filename new-name 1)
+		 (rename-buffer new-name)
+		 (set-visited-file-name new-name)
+		 (set-buffer-modified-p nil)
+		 (when (fboundp 'recentf-add-file)
+                   (recentf-add-file new-name)
+                   (recentf-remove-if-non-kept filename))
+		 (when (and (configuration-layer/package-usedp 'projectile)
+                            (projectile-project-p))
+                   (call-interactively #'projectile-invalidate-cache))
+		 (message "File '%s' successfully renamed to '%s'" name (file-name-nondirectory new-name))))))))
   ;; switch-to-last-buffer
   ;; https://reddit.com/r/emacs/comments/2jzkz7/quickly_switch_to_previous_buffer/
   (defun my/switch-to-last-buffer ()
@@ -110,7 +122,7 @@
 	("f s" . save-buffer)
 	("f r" . recentf-open-files)
 	("f D" . my/delete-file-and-buffer)
-	("f R" . my/rename-file-and-buffer)
+	("f R" . spacemacs/rename-current-buffer-file)
 
 	("d d" . my/find-user-init-file)
 
