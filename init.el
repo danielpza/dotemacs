@@ -584,3 +584,7 @@
 	("i k" . string-inflection-kebab-case)
 	("i j" . my/string-inflection-safe-javascript-kebab-case)
 	))
+
+(use-package json-mode
+  :straight t
+  :hook (json-mode . lsp-deferred))
