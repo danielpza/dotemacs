@@ -2,6 +2,8 @@
 (require 'early-init (concat user-emacs-directory "early-init.el"))
 ;; (setq debug-on-error t)
 
+(setq ring-bell-function 'ignore)
+
 (global-display-line-numbers-mode)
 
 ;;;+straight bootstrap
@@ -126,6 +128,8 @@
 
 	("d d" . my/find-user-init-file)
 
+	("i e" . emoji-search)
+
 	("b d" . kill-current-buffer)
 	("b b" . switch-to-buffer)
 	("b r" . revert-buffer))
@@ -179,6 +183,12 @@
   :init
   (vertico-mode))
 
+(use-package mct
+  :disabled
+  :straight t
+  :config
+  (mct-mode))
+
 (use-package corfu
   :disabled
   :straight t
@@ -186,6 +196,15 @@
   (corfu-global-mode)
   (with-eval-after-load 'evil
     (define-key evil-insert-state-map (kbd "C-SPC") 'indent-for-tab-command)))
+
+(use-package kind-icon
+  :disabled
+  :straight t
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 (use-package company
   :straight t
@@ -251,6 +270,7 @@
 
 ;;+code
 (use-package js
+  :mode (("\\.mjs\\'" . typescript-mode))
   :custom
   (js-indent-level 2))
 
@@ -273,7 +293,7 @@
       (flymake-eslint-enable)
       ;; https://github.com/orzechowskid/flymake-eslint/issues/19#issuecomment-559833671
       (setq-local flymake-eslint-project-root (locate-dominating-file buffer-file-name ".eslintrc"))))
-  :hook ((js-mode typescript-mode typescript-react-mode) . my/flymake-eslint-enable))
+  :hook ((js-mode typescript-mode typescript-tsx-mode) . my/flymake-eslint-enable))
 
 (use-package flycheck
   :straight t
@@ -293,7 +313,7 @@
     (eglot-ensure)
     (setq-local eglot-stay-out-of '(flymake))
     (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t))
-  :hook ((js-mode typescript-mode typescript-react-mode) . my/eglot-ensure)
+  :hook ((js-mode typescript-mode typescript-tsx-mode) . my/eglot-ensure)
   :bind
   (:map leader-map
 	("l r" . eglot-rename)
@@ -309,12 +329,17 @@
   :custom
   (lsp-enable-snippet nil)
   :config
+  (setq lsp-log-io nil) ; if set to true can cause a performance hit
+  (setq lsp-idle-delay 0.500)
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
   (define-key leader-map (kbd "l") lsp-command-map))
 
 (use-package lsp-ui
   :straight t
-  :after lsp-mode)
+  :after lsp-mode
+  ;; :custom
+  ;; (lsp-ui-sideline-show-code-actions t)
+  )
 
 (use-package consult-lsp
   :straight t
@@ -328,14 +353,12 @@
 (use-package evil
   :straight t
   :demand
-  :init
   :custom
   (evil-want-keybinding nil) ;; needed for evil-collection
   (evil-want-C-u-scroll t)
   (evil-want-Y-yank-to-eol t)
   (evil-undo-system 'undo-redo)
   (evil-respect-visual-line-mode t)
-  (evil-collection-company-use-tng nil) ;; make enter work
   :bind
   ([remap evil-goto-definition] . xref-find-definitions)
   (:map evil-normal-state-map ("z l" . hs-hide-level))
@@ -352,7 +375,7 @@
   :straight t
   :demand
   :custom
-  (evil-collection-company-use-tng nil)
+  (evil-collection-company-use-tng nil) ;; make enter work
   :config
   (evil-collection-init))
 
@@ -437,7 +460,7 @@
   :straight t
   :after (treemacs all-the-icons)
   :config
-  (treemacs-load-theme 'all-the-icons))
+  (treemacs-load-theme "all-the-icons"))
 
 (use-package treemacs-magit
   :straight t
@@ -468,7 +491,7 @@
   (advice-add 'apheleia-format-buffer :around #'shou/fix-apheleia-project-dir)
   (defun setup-format-buffer-apheleia()
     (setq-local format-buffer-fn 'apheleia-format-buffer))
-  :hook ((markdown-mode typescript-mode typescript-react-mode js-mode scss-mode) . setup-format-buffer-apheleia)
+  :hook ((markdown-mode typescript-mode typescript-tsx-mode js-mode scss-mode) . setup-format-buffer-apheleia)
   :config
   (apheleia-global-mode 1))
 
@@ -563,8 +586,35 @@
 (use-package tree-sitter-langs :straight t)
 
 (use-package autoinsert
+  :init
+  ;; https://emacs.stackexchange.com/a/55781/15986
+  (defcustom auto-insert-init-form 'auto-insert-init-form
+    "Symbol identifying init forms in template files."
+    :group 'auto-insert
+    :type 'symbol)
+
+  (defun my-eval-auto-insert-init-form ()
+    "Evaluate (AUTO-INSERT-INIT-FORM ...) in autoinsert templates.
+Thereby, AUTO-INSERT-INIT-FORM stands for the symbol defined by
+the customizable variable `auto-insert-init-form'.
+\(auto-insert-init-form ...) works like `progn'.
+Applied in the newly created file it should return the string
+that replaces the form."
+    (goto-char (point-min))
+    (cl-letf (((symbol-function auto-insert-init-form) #'progn))
+      (while (re-search-forward "(auto-insert-init-form[[:space:]]" nil t)
+	(let* ((beg (goto-char (match-beginning 0)))
+               (end (with-syntax-table emacs-lisp-mode-syntax-table
+		      (forward-sexp)
+		      (point)))
+               (str (eval (read (buffer-substring beg end)))))
+	  (delete-region beg end)
+	  (insert str)))))
   :config
-  (setq auto-insert-alist '((".editorconfig" . "editorconfig")))
+  (setq auto-insert-query nil)
+  (setq auto-insert-alist '((".editorconfig" . "editorconfig")
+			    (".tsx" . ["react-typescript" my-eval-auto-insert-init-form])
+			    ))
   (auto-insert-mode))
 
 (use-package string-inflection
@@ -588,3 +638,28 @@
 (use-package json-mode
   :straight t
   :hook (json-mode . lsp-deferred))
+(put 'narrow-to-region 'disabled nil)
+
+(use-package docker
+  :disabled
+  :straight t
+  :bind
+  (:map leader-map ("c D" . docker)))
+
+(use-package dirvish
+  :disabled
+  :straight t
+  :config
+  (setq dired-kill-when-opening-new-dired-buffer t) ; added in emacs 28
+  (setq dired-clean-confirm-killing-deleted-buffers nil)
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  (setq delete-by-moving-to-trash t)
+  (setq dired-dwim-target t)
+  (setq dired-listing-switches "-AGhlv --group-directories-first --time-style=long-iso"))
+
+(use-package yasnippet
+  :disabled
+  :straight t
+  :config
+  (yas-global-mode))
