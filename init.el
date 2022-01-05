@@ -665,3 +665,13 @@ that replaces the form."
   :straight t
   :config
   (yas-global-mode))
+
+(defun shell-command-dwim (command)
+  (if (use-region-p)
+      (shell-command-on-region (region-beginning) (region-end) command "*shell-command-dwim*")
+    (shell-command-on-region (point-min) (point-max) command "*shell-command-dwim*"))
+  (with-current-buffer  "*shell-command-dwim*" (buffer-string)))
+
+(defun json-to-ts-dwim ()
+  (interactive)
+  (kill-new (shell-command-dwim "json-to-ts-cli")))
