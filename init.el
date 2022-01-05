@@ -297,6 +297,8 @@
 
 (use-package flycheck
   :straight t
+  :custom
+  (flycheck-navigation-minimum-level 'warning)
   :bind
   (:map leader-map
 	("e n" . flycheck-next-error)
