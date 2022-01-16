@@ -675,3 +675,12 @@ that replaces the form."
 (defun json-to-ts-dwim ()
   (interactive)
   (kill-new (shell-command-dwim "json-to-ts-cli")))
+
+(defun typescript-to-clipboard ()
+  (interactive)
+  (shell-command-on-region (point-min) (point-max) (format "npx esbuild %s" (buffer-file-name)) "*typescript-to-clipboard*")
+  (kill-new (with-current-buffer "*typescript-to-clipboard*" (buffer-string)))
+  ;; https://emacs.stackexchange.com/questions/55647/manually-close-a-compilation-window-that-was-most-recently-opened-by-running-e?rq=1
+  (quit-window nil (get-buffer-window "*typescript-to-clipboard*")))
+
+(define-key leader-map (kbd "c c") 'typescript-to-clipboard)
