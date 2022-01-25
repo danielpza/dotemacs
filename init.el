@@ -684,3 +684,5 @@ that replaces the form."
   (quit-window nil (get-buffer-window "*typescript-to-clipboard*")))
 
 (define-key leader-map (kbd "c c") 'typescript-to-clipboard)
+
+(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
