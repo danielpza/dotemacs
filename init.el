@@ -305,6 +305,12 @@
 	("e p" . flycheck-previous-error)
 	("e l" . flycheck-list-errors)))
 
+(use-package consult-flycheck
+  :straight t
+  :bind
+  (:map leader-map
+	("e c" . consult-flycheck)))
+
 (use-package eglot
   :disabled
   :straight t
@@ -551,7 +557,6 @@
 (use-package git-link
   :straight t
   :custom
-  (git-link-default-branch "master")
   (git-link-default-remote "origin")
   :bind
   (:map leader-map
@@ -686,3 +691,6 @@ that replaces the form."
 (define-key leader-map (kbd "c c") 'typescript-to-clipboard)
 
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+
+(use-package markdown-toc
+  :straight t)
