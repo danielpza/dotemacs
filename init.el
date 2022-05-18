@@ -401,6 +401,11 @@
 	 ("i" . evil-indent-plus-a-indent)
 	 ("I" . evil-indent-plus-a-indent-up)
 	 ("J" . evil-indent-plus-a-indent-up-down)))
+
+;; (use-package evil-lion
+;;   :straight t
+;;   :config
+;;   (evil-lion-mode))
 ;;-evil
 
 ;; leader key https://github.com/noctuid/evil-guide#preventing-certain-keys-from-being-overridden
@@ -460,7 +465,7 @@
   (treemacs-pulse-on-success nil)
   :bind
   (:map project-prefix-map
-	("t" . treemacs-display-current-project-exclusively))
+	("t" . treemacs))
   :config
   (treemacs-follow-mode))
 
@@ -484,6 +489,22 @@
   :bind
   (:map leader-map ("c P" . prodigy))
   :config
+
+  (prodigy-define-tag
+    :name 'webpack
+    :stop-signal 'sigkill
+    :ready-message  ".*Compiled successfully\\..*")
+
+  (prodigy-define-tag
+    :name 'python
+    :stop-signal 'sigkill
+    :ready-message ".* Debugger PIN:.*")
+
+  (prodigy-define-tag
+    :name 'node
+    :stop-signal 'sigkill
+    :ready-message ".*Environment:.*")
+
   (load (concat user-emacs-directory "var/prodigy.el") t))
 
 (use-package apheleia
@@ -689,6 +710,8 @@ that replaces the form."
   (quit-window nil (get-buffer-window "*typescript-to-clipboard*")))
 
 (define-key leader-map (kbd "c c") 'typescript-to-clipboard)
+
+(define-key leader-map (kbd "c l") 'recenter)
 
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 
