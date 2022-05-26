@@ -704,12 +704,26 @@ that replaces the form."
 
 (defun typescript-to-clipboard ()
   (interactive)
-  (shell-command-on-region (point-min) (point-max) (format "npx esbuild %s" (buffer-file-name)) "*typescript-to-clipboard*")
+  (shell-command-on-region (point-min) (point-max) (format "esbuild %s" (buffer-file-name)) "*typescript-to-clipboard*")
   (kill-new (with-current-buffer "*typescript-to-clipboard*" (buffer-string)))
   ;; https://emacs.stackexchange.com/questions/55647/manually-close-a-compilation-window-that-was-most-recently-opened-by-running-e?rq=1
-  (quit-window nil (get-buffer-window "*typescript-to-clipboard*")))
+  ;; (quit-window nil (get-buffer-window "*typescript-to-clipboard*"))
+  (delete-windows-on (get-buffer  "*typescript-to-clipboard*"))
+  )
+
+(defun typescript-to-browser-bookmark-to-clipboard ()
+  (interactive)
+  (shell-command-on-region (point-min) (point-max) (format "esbuild %s" (buffer-file-name)) "*typescript-to-clipboard*")
+
+  (with-current-buffer "*typescript-to-clipboard*"
+    (while (re-search-forward "\n" nil t)
+      (replace-match "" nil nil)))
+  (kill-new (concat "javascript: (() => {" (with-current-buffer "*typescript-to-clipboard*" (buffer-string)) "})()"))
+  (delete-windows-on (get-buffer  "*typescript-to-clipboard*")))
 
 (define-key leader-map (kbd "c c") 'typescript-to-clipboard)
+
+(define-key leader-map (kbd "c b") 'typescript-to-browser-bookmark-to-clipboard)
 
 (define-key leader-map (kbd "c l") 'recenter)
 
