@@ -581,13 +581,13 @@
 (use-package diff-hl
   :straight t
   :demand
-  :hook ((magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
-	 (magit-post-refresh-hook . diff-hl-magit-post-refresh))
   :bind
   (:map leader-map
 	("g [" . diff-hl-previous-hunk)
 	("g ]" . diff-hl-next-hunk))
   :config
+  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
   (global-diff-hl-mode 1)
   (diff-hl-flydiff-mode 1))
 ;;-others
@@ -626,6 +626,7 @@
   :straight t
   :custom
   (git-link-default-remote "origin")
+  (git-link-use-commit t)
   :bind
   (:map leader-map
 	("g l l" . git-link)))
@@ -638,6 +639,7 @@
 	("g c g" . copy-as-format-github)))
 
 (use-package quickrun
+  :disabled
   :straight t
   :config
   (quickrun-add-command "typescript"
@@ -763,7 +765,6 @@ that replaces the form."
   :straight t
   :config
   (yas-global-mode))
-
 
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
