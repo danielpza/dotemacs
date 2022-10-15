@@ -24,9 +24,13 @@
 
 (setq leader-map (make-sparse-keymap)) ;; bind SPC-* keybindings here
 
+(use-package use-package-ensure-system-package
+  :disabled
+  :straight t)
+
 ;; core emacs configuration
 (use-package hideshow
-  :hook (prog-mode . hs-minor-mode))
+  :hook ((prog-mode . hs-minor-mode)))
 
 (use-package paren
   :config
@@ -35,21 +39,6 @@
 (use-package delsel
   :config
   (delete-selection-mode +1))
-
-(use-package flymake
-  :disabled
-  :init
-  (defun my/flymake-goto-next-important-error ()
-    (interactive)
-    (let ((current-prefix-arg '(4))) (call-interactively 'flymake-goto-next-error)))
-  (defun my/flymake-goto-prev-important-error ()
-    (interactive)
-    (let ((current-prefix-arg '(4))) (call-interactively 'flymake-goto-prev-error)))
-  :bind
-  (:map leader-map
-	("e n" . my/flymake-goto-next-important-error)
-	("e p" . my/flymake-goto-prev-important-error)
-	("e l" . flymake-show-diagnostics-buffer)))
 
 (use-package emacs
   :init
@@ -171,6 +160,7 @@
   :config
   (editorconfig-mode))
 
+;;+completion
 (use-package orderless
   :straight t
   :custom
@@ -217,6 +207,7 @@
   :straight t
   :config
   (marginalia-mode))
+;;-completion
 
 (use-package which-key
   :straight t
@@ -243,17 +234,13 @@
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
 	xref-show-definitions-function #'consult-xref)
-  ;; (xref-show-xrefs-function 'consult-xref)
-  ;; (xref-show-definitions-function 'consult-xref)
-  )
-
-(use-package all-the-icons-completion
-  :straight t
   :config
-  (all-the-icons-completion-mode))
+  (with-eval-after-load "flymake"
+    (define-key leader-map (kbd "e c") 'consult-flymake)))
 ;;-base
 
 ;;+magit
+
 (use-package magit
   :straight t
   :custom
@@ -266,13 +253,26 @@
 	("g u" . magit-unstage-file)
 	("g d" . magit-file-dispatch)
 	("g l b" . magit-log-buffer-file)))
-;;-magit
 
-;;+code
+;;+languages
+(use-package tree-sitter
+  :straight t
+  :demand
+  :hook
+  (tree-sitter-mode . tree-sitter-hl-mode)
+  :config
+  (global-tree-sitter-mode))
+
+(use-package tree-sitter-langs :straight t)
+
 (use-package js
   :mode (("\\.mjs\\'" . typescript-mode))
   :custom
   (js-indent-level 2))
+
+(use-package lua-mode
+  :straight t
+  :mode "\\.lua\\'")
 
 (use-package typescript-mode
   :straight t
@@ -284,18 +284,54 @@
     ;; https://github.com/emacs-typescript/typescript.el/issues/4#issuecomment-873485004
     (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-tsx-mode . tsx))))
 
-(use-package flymake-eslint
-  :disabled
+(use-package json-mode
   :straight t
+  ;; :hook (json-mode . lsp-deferred)
+  )
+
+(use-package markdown-mode
+  :straight t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
+
+(use-package markdown-toc
+  :straight t
+  :after markdown-mode)
+
+(use-package yaml-mode
+  :straight t)
+
+;;-languages
+
+(use-package flymake
+  :hook ((prog-mode . flymake-mode))
   :init
-  (defun my/flymake-eslint-enable ()
-    (unless (string= (file-name-extension (buffer-file-name)) "json")
-      (flymake-eslint-enable)
-      ;; https://github.com/orzechowskid/flymake-eslint/issues/19#issuecomment-559833671
-      (setq-local flymake-eslint-project-root (locate-dominating-file buffer-file-name ".eslintrc"))))
-  :hook ((js-mode typescript-mode typescript-tsx-mode) . my/flymake-eslint-enable))
+  (defun my/flymake-goto-next-important-error ()
+    (interactive)
+    (let ((current-prefix-arg '(4))) (call-interactively 'flymake-goto-next-error)))
+  (defun my/flymake-goto-prev-important-error ()
+    (interactive)
+    (let ((current-prefix-arg '(4))) (call-interactively 'flymake-goto-prev-error)))
+  :bind
+  (:map leader-map
+	("e n" . my/flymake-goto-next-important-error)
+	("e p" . my/flymake-goto-prev-important-error)
+	("e l" . flymake-show-diagnostics-buffer)))
+
+;; (use-package flymake-eslint
+;;   :disabled
+;;   :after flymake
+;;   :straight t
+;;   :init
+;;   (defun my/flymake-eslint-enable ()
+;;     (unless (string= (file-name-extension (buffer-file-name)) "json")
+;;       (flymake-eslint-enable)
+;;       ;; https://github.com/orzechowskid/flymake-eslint/issues/19#issuecomment-559833671
+;;       (setq-local flymake-eslint-project-root (locate-dominating-file buffer-file-name ".eslintrc"))))
+;;   :hook ((js-mode typescript-mode typescript-tsx-mode) . my/flymake-eslint-enable))
 
 (use-package flycheck
+  :disabled
   :straight t
   :custom
   (flycheck-navigation-minimum-level 'warning)
@@ -311,17 +347,20 @@
   (:map leader-map
 	("e c" . consult-flycheck)))
 
+;;+lsp
 (use-package eglot
-  :disabled
   :straight t
   ;; :ensure-system-package ((typescript-language-server . "npm install --global typescript-language-server")
-  ;;			  (eslint-lsp . "npm install --global danielpza/eslint-lsp"))
+  ;; 			  ;; (eslint-lsp . "npm install --global danielpza/eslint-lsp")
+  ;; 			  )
+  :hook ((js-mode typescript-mode typescript-tsx-mode lua-mode) . my/eglot-ensure)
   :init
   (defun my/eglot-ensure ()
     (eglot-ensure)
     (setq-local eglot-stay-out-of '(flymake))
     (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t))
-  :hook ((js-mode typescript-mode typescript-tsx-mode) . my/eglot-ensure)
+  :config
+  (add-to-list 'eglot-server-programs '(lua-mode . ("lua-language-server")))
   :bind
   (:map leader-map
 	("l r" . eglot-rename)
@@ -332,6 +371,7 @@
   (eglot-confirm-server-initiated-edits nil))
 
 (use-package lsp-mode
+  :disabled
   :straight t
   :hook ((js-mode typescript-mode lua-mode) . lsp-deferred)
   :custom
@@ -343,21 +383,22 @@
   (define-key leader-map (kbd "l") lsp-command-map))
 
 (use-package lsp-ui
+  :disabled
   :straight t
   :after lsp-mode
   ;; :custom
   ;; (lsp-ui-sideline-show-code-actions t)
   )
+;;-lsp
 
 (use-package consult-lsp
+  :disabled
   :straight t
   :bind
   (:map lsp-command-map
 	([remap xref-find-apropos] . consult-lsp-symbols)
 	("f" . consult-lsp-diagnostics)))
-;;-code
 
-;;+evil
 (use-package evil
   :straight t
   :demand
@@ -439,6 +480,17 @@
 (use-package all-the-icons
   :straight t)
 
+(use-package all-the-icons-completion
+  :straight t
+  :after all-the-icons
+  :config
+  (all-the-icons-completion-mode))
+
+(use-package all-the-icons-dired
+  :straight t
+  :after all-the-icons
+  :hook (dired-mode . all-the-icons-dired-mode))
+
 (use-package doom-modeline
   :straight t
   :config
@@ -463,11 +515,16 @@
   :straight t
   :custom
   (treemacs-pulse-on-success nil)
+  (treemacs-width-is-initially-locked nil)
   :bind
   (:map project-prefix-map
-	("t" . treemacs))
+	("t" . treemacs-display-current-project-exclusively))
   :config
   (treemacs-follow-mode))
+
+(use-package treemacs-evil
+  :straight t
+  :after (treemacs evil))
 
 (use-package treemacs-all-the-icons
   :straight t
@@ -478,11 +535,6 @@
 (use-package treemacs-magit
   :straight t
   :after (treemacs magit))
-
-(use-package all-the-icons-dired
-  :straight t
-  :after all-the-icons
-  :hook (dired-mode . all-the-icons-dired-mode))
 
 (use-package prodigy
   :straight t
@@ -520,8 +572,10 @@
   (advice-add 'apheleia-format-buffer :around #'shou/fix-apheleia-project-dir)
   (defun setup-format-buffer-apheleia()
     (setq-local format-buffer-fn 'apheleia-format-buffer))
-  :hook ((markdown-mode typescript-mode typescript-tsx-mode js-mode scss-mode) . setup-format-buffer-apheleia)
+  :hook ((markdown-mode typescript-mode typescript-tsx-mode js-mode scss-mode yaml-mode lua-mode) . setup-format-buffer-apheleia)
   :config
+  ;; https://github.com/radian-software/apheleia/pull/81
+  (setf (alist-get 'markdown-mode apheleia-mode-alist) 'prettier)
   (apheleia-global-mode 1))
 
 (use-package diff-hl
@@ -538,17 +592,10 @@
   (diff-hl-flydiff-mode 1))
 ;;-others
 
-;; Make gc pauses faster by decreasing the threshold.
-(setq gc-cons-threshold (* 2 1000 1000))
-
 (electric-pair-mode)
 ;; (modify-syntax-entry ?_ "w")
 
-(superword-mode)
-
-(use-package lua-mode
-  :straight t
-  :mode "\\.lua\\'")
+;; (superword-mode)
 
 (use-package hydra
   :straight t
@@ -603,16 +650,6 @@
   :bind
   ("<f5>" . quickrun))
 
-(use-package tree-sitter
-  :straight t
-  :demand
-  :hook
-  (tree-sitter-mode . tree-sitter-hl-mode)
-  :config
-  (global-tree-sitter-mode))
-
-(use-package tree-sitter-langs :straight t)
-
 (use-package autoinsert
   :init
   ;; https://emacs.stackexchange.com/a/55781/15986
@@ -663,16 +700,51 @@ that replaces the form."
 	("i j" . my/string-inflection-safe-javascript-kebab-case)
 	))
 
-(use-package json-mode
-  :straight t
-  :hook (json-mode . lsp-deferred))
-(put 'narrow-to-region 'disabled nil)
+;; (put 'narrow-to-region 'disabled nil)
 
-(use-package docker
-  :disabled
-  :straight t
-  :bind
-  (:map leader-map ("c D" . docker)))
+
+;; other functions 
+
+(defun shell-command-dwim (command)
+  (if (use-region-p)
+      (shell-command-on-region (region-beginning) (region-end) command "*shell-command-dwim*")
+    (shell-command-on-region (point-min) (point-max) command "*shell-command-dwim*"))
+  (with-current-buffer  "*shell-command-dwim*" (buffer-string)))
+
+(defun json-to-ts-dwim ()
+  (interactive)
+  (kill-new (shell-command-dwim "json-to-ts-cli")))
+
+(defun typescript-to-clipboard ()
+  "Converts current buffer from typescript to javascript and copies it to the clipboard."
+  (interactive)
+  (shell-command-on-region (point-min) (point-max) (format "esbuild %s" (buffer-file-name)) "*typescript-to-clipboard*")
+  (kill-new (with-current-buffer "*typescript-to-clipboard*" (buffer-string)))
+  ;; https://emacs.stackexchange.com/questions/55647/manually-close-a-compilation-window-that-was-most-recently-opened-by-running-e?rq=1
+  ;; (quit-window nil (get-buffer-window "*typescript-to-clipboard*"))
+  (delete-windows-on (get-buffer  "*typescript-to-clipboard*"))
+  )
+
+(defun typescript-to-browser-bookmark-to-clipboard ()
+  "Converts current buffer from typescript to javascript and copies it to the clipboard in a format that can be run from a firefox bookmark."
+  (interactive)
+  (shell-command-on-region (point-min) (point-max) (format "esbuild %s" (buffer-file-name)) "*typescript-to-clipboard*")
+
+  (with-current-buffer "*typescript-to-clipboard*"
+    (while (re-search-forward "\n" nil t)
+      (replace-match "" nil nil)))
+  (kill-new (concat "javascript: (() => {" (with-current-buffer "*typescript-to-clipboard*" (buffer-string)) "})()"))
+  (delete-windows-on (get-buffer  "*typescript-to-clipboard*")))
+
+(define-key leader-map (kbd "c c") 'typescript-to-clipboard)
+
+(define-key leader-map (kbd "c b") 'typescript-to-browser-bookmark-to-clipboard)
+
+(define-key leader-map (kbd "c l") 'recenter)
+
+(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+
+;; others
 
 (use-package dirvish
   :disabled
@@ -692,42 +764,6 @@ that replaces the form."
   :config
   (yas-global-mode))
 
-(defun shell-command-dwim (command)
-  (if (use-region-p)
-      (shell-command-on-region (region-beginning) (region-end) command "*shell-command-dwim*")
-    (shell-command-on-region (point-min) (point-max) command "*shell-command-dwim*"))
-  (with-current-buffer  "*shell-command-dwim*" (buffer-string)))
 
-(defun json-to-ts-dwim ()
-  (interactive)
-  (kill-new (shell-command-dwim "json-to-ts-cli")))
-
-(defun typescript-to-clipboard ()
-  (interactive)
-  (shell-command-on-region (point-min) (point-max) (format "esbuild %s" (buffer-file-name)) "*typescript-to-clipboard*")
-  (kill-new (with-current-buffer "*typescript-to-clipboard*" (buffer-string)))
-  ;; https://emacs.stackexchange.com/questions/55647/manually-close-a-compilation-window-that-was-most-recently-opened-by-running-e?rq=1
-  ;; (quit-window nil (get-buffer-window "*typescript-to-clipboard*"))
-  (delete-windows-on (get-buffer  "*typescript-to-clipboard*"))
-  )
-
-(defun typescript-to-browser-bookmark-to-clipboard ()
-  (interactive)
-  (shell-command-on-region (point-min) (point-max) (format "esbuild %s" (buffer-file-name)) "*typescript-to-clipboard*")
-
-  (with-current-buffer "*typescript-to-clipboard*"
-    (while (re-search-forward "\n" nil t)
-      (replace-match "" nil nil)))
-  (kill-new (concat "javascript: (() => {" (with-current-buffer "*typescript-to-clipboard*" (buffer-string)) "})()"))
-  (delete-windows-on (get-buffer  "*typescript-to-clipboard*")))
-
-(define-key leader-map (kbd "c c") 'typescript-to-clipboard)
-
-(define-key leader-map (kbd "c b") 'typescript-to-browser-bookmark-to-clipboard)
-
-(define-key leader-map (kbd "c l") 'recenter)
-
-(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-
-(use-package markdown-toc
-  :straight t)
+;; Make gc pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))
