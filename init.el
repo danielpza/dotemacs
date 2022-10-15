@@ -128,6 +128,8 @@
   (unbind-key "C-k")
   (unbind-key "C-j"))
 
+(electric-pair-mode)
+
 (use-package dired
   :bind
   (:map leader-map
@@ -237,6 +239,25 @@
   :config
   (with-eval-after-load "flymake"
     (define-key leader-map (kbd "e c") 'consult-flymake)))
+
+(use-package apheleia
+  :straight '(apheleia :host github :repo "raxod502/apheleia")
+  :demand
+  :init
+  ;; https://github.com/raxod502/apheleia/issues/30#issuecomment-778150037
+  (defun shou/fix-apheleia-project-dir (orig-fn &rest args)
+    (let ((project (project-current)))
+      (if (not (null project))
+          (let ((default-directory (project-root project))) (apply orig-fn args))
+        (apply orig-fn args))))
+  (advice-add 'apheleia-format-buffer :around #'shou/fix-apheleia-project-dir)
+  (defun setup-format-buffer-apheleia()
+    (setq-local format-buffer-fn 'apheleia-format-buffer))
+  :hook ((markdown-mode typescript-mode typescript-tsx-mode js-mode scss-mode yaml-mode lua-mode) . setup-format-buffer-apheleia)
+  :config
+  ;; https://github.com/radian-software/apheleia/pull/81
+  (setf (alist-get 'markdown-mode apheleia-mode-alist) 'prettier)
+  (apheleia-global-mode 1))
 ;;-base
 
 ;;+magit
@@ -529,25 +550,6 @@
   :straight t
   :after (treemacs magit))
 
-(use-package apheleia
-  :straight '(apheleia :host github :repo "raxod502/apheleia")
-  :demand
-  :init
-  ;; https://github.com/raxod502/apheleia/issues/30#issuecomment-778150037
-  (defun shou/fix-apheleia-project-dir (orig-fn &rest args)
-    (let ((project (project-current)))
-      (if (not (null project))
-          (let ((default-directory (project-root project))) (apply orig-fn args))
-        (apply orig-fn args))))
-  (advice-add 'apheleia-format-buffer :around #'shou/fix-apheleia-project-dir)
-  (defun setup-format-buffer-apheleia()
-    (setq-local format-buffer-fn 'apheleia-format-buffer))
-  :hook ((markdown-mode typescript-mode typescript-tsx-mode js-mode scss-mode yaml-mode lua-mode) . setup-format-buffer-apheleia)
-  :config
-  ;; https://github.com/radian-software/apheleia/pull/81
-  (setf (alist-get 'markdown-mode apheleia-mode-alist) 'prettier)
-  (apheleia-global-mode 1))
-
 (use-package diff-hl
   :straight t
   :demand
@@ -562,10 +564,7 @@
   (diff-hl-flydiff-mode 1))
 ;;-visual
 
-(electric-pair-mode)
-;; (modify-syntax-entry ?_ "w")
-
-;; (superword-mode)
+;; others
 
 (use-package hydra
   :straight t
@@ -591,7 +590,6 @@
   ("C-<tab>" . centaur-tabs-forward)
   ("C-<iso-lefttab>" . centaur-tabs-backward))
 
-;; others
 (use-package helpful
   :straight t
   :bind
