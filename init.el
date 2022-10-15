@@ -411,6 +411,21 @@
   :bind
   ([remap evil-goto-definition] . xref-find-definitions)
   (:map evil-normal-state-map ("z l" . hs-hide-level))
+  :init
+  (defun my/setup-evil-leader-key ()
+    ;; leader key https://github.com/noctuid/evil-guide#preventing-certain-keys-from-being-overridden
+    (define-minor-mode leader-mode
+      "Bind leader-map to SPC prefix in evil modes"
+      :lighter " Leader"
+      :init-value t
+      :global t
+      :keymap (make-sparse-keymap))
+
+    (dolist (state '(normal visual insert))
+      (evil-make-intercept-map
+       (evil-get-auxiliary-keymap leader-mode-map state t t)
+       state))
+    (evil-define-key '(normal visual) leader-mode-map (kbd "SPC") leader-map))
   :config
   ;; https://emacs.stackexchange.com/a/20717/15986
   (defalias #'forward-evil-word #'forward-evil-symbol)
@@ -449,20 +464,8 @@
 ;;   (evil-lion-mode))
 ;;-evil
 
-;; leader key https://github.com/noctuid/evil-guide#preventing-certain-keys-from-being-overridden
 (with-eval-after-load 'evil
-  (define-minor-mode leader-mode
-    "Bind leader-map to SPC prefix in evil modes"
-    :lighter " Leader"
-    :init-value t
-    :global t
-    :keymap (make-sparse-keymap))
-
-  (dolist (state '(normal visual insert))
-    (evil-make-intercept-map
-     (evil-get-auxiliary-keymap leader-mode-map state t t)
-     state))
-  (evil-define-key '(normal visual) leader-mode-map (kbd "SPC") leader-map))
+  (my/setup-evil-leader-key))
 
 ;;+visual
 (use-package dashboard
@@ -500,16 +503,6 @@
   :straight t
   :config
   (load-theme 'doom-one t))
-;;-visual
-
-;;+others
-(use-package helpful
-  :straight t
-  :bind
-  ([remap describe-function] . helpful-callable)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . helpful-variable)
-  ([remap describe-key] . helpful-key))
 
 (use-package treemacs
   :straight t
@@ -535,29 +528,6 @@
 (use-package treemacs-magit
   :straight t
   :after (treemacs magit))
-
-(use-package prodigy
-  :straight t
-  :bind
-  (:map leader-map ("c P" . prodigy))
-  :config
-
-  (prodigy-define-tag
-    :name 'webpack
-    :stop-signal 'sigkill
-    :ready-message  ".*Compiled successfully\\..*")
-
-  (prodigy-define-tag
-    :name 'python
-    :stop-signal 'sigkill
-    :ready-message ".* Debugger PIN:.*")
-
-  (prodigy-define-tag
-    :name 'node
-    :stop-signal 'sigkill
-    :ready-message ".*Environment:.*")
-
-  (load (concat user-emacs-directory "var/prodigy.el") t))
 
 (use-package apheleia
   :straight '(apheleia :host github :repo "raxod502/apheleia")
@@ -590,7 +560,7 @@
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh)
   (global-diff-hl-mode 1)
   (diff-hl-flydiff-mode 1))
-;;-others
+;;-visual
 
 (electric-pair-mode)
 ;; (modify-syntax-entry ?_ "w")
@@ -622,6 +592,38 @@
   ("C-<iso-lefttab>" . centaur-tabs-backward))
 
 ;; others
+(use-package helpful
+  :straight t
+  :bind
+  ([remap describe-function] . helpful-callable)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-key] . helpful-key))
+
+(use-package prodigy
+  :disabled
+  :straight t
+  :bind
+  (:map leader-map ("c P" . prodigy))
+  :config
+
+  (prodigy-define-tag
+   :name 'webpack
+   :stop-signal 'sigkill
+   :ready-message  ".*Compiled successfully\\..*")
+
+  (prodigy-define-tag
+   :name 'python
+   :stop-signal 'sigkill
+   :ready-message ".* Debugger PIN:.*")
+
+  (prodigy-define-tag
+   :name 'node
+   :stop-signal 'sigkill
+   :ready-message ".*Environment:.*")
+
+  (load (concat user-emacs-directory "var/prodigy.el") t))
+
 (use-package git-link
   :straight t
   :custom
@@ -643,10 +645,10 @@
   :straight t
   :config
   (quickrun-add-command "typescript"
-    '((:command . "ts-node")
-      (:exec . ("%c -T %o %s"))
-      (:remove . ("true")))
-    :override t)
+			'((:command . "ts-node")
+			  (:exec . ("%c -T %o %s"))
+			  (:remove . ("true")))
+			:override t)
   :custom
   (quickrun-focus-p nil)
   :bind
