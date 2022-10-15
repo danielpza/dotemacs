@@ -182,15 +182,19 @@
   (mct-mode))
 
 (use-package corfu
-  :disabled
   :straight t
+  :custom
+  (corfu-auto t)
+  (corfu-auto-prefix 0)
+  (corfu-quit-no-match 'separator)
+  (with-eval-after-load "eglot"
+    (setq completion-category-overrides '((eglot (styles orderless)))))
   :config
-  (corfu-global-mode)
+  (global-corfu-mode)
   (with-eval-after-load 'evil
     (define-key evil-insert-state-map (kbd "C-SPC") 'indent-for-tab-command)))
 
 (use-package kind-icon
-  :disabled
   :straight t
   :after corfu
   :custom
@@ -199,6 +203,7 @@
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 (use-package company
+  :disabled
   :straight t
   :config
   (global-company-mode)
@@ -258,7 +263,7 @@
   :hook (apheleia-mode . my/setup-format-buffer-apheleia)
   :config
   ;; https://github.com/radian-software/apheleia/pull/81
-  (setf (alist-get 'markdown-mode apheleia-mode-alist) 'prettier)
+  (setf (alist-get 'markdown-mode apheleia-mode-alist) 'prettier-markdown)
   (apheleia-global-mode 1))
 ;;-base
 
