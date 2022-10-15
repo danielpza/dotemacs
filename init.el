@@ -251,9 +251,11 @@
           (let ((default-directory (project-root project))) (apply orig-fn args))
         (apply orig-fn args))))
   (advice-add 'apheleia-format-buffer :around #'shou/fix-apheleia-project-dir)
-  (defun setup-format-buffer-apheleia()
-    (setq-local format-buffer-fn 'apheleia-format-buffer))
-  :hook ((markdown-mode typescript-mode typescript-tsx-mode js-mode scss-mode yaml-mode lua-mode) . setup-format-buffer-apheleia)
+  (defun my/setup-format-buffer-apheleia()
+    ;; format with prettier if current mode is supported
+    (when (alist-get major-mode apheleia-mode-alist)
+      (setq-local format-buffer-fn 'apheleia-format-buffer)))
+  :hook (apheleia-mode . my/setup-format-buffer-apheleia)
   :config
   ;; https://github.com/radian-software/apheleia/pull/81
   (setf (alist-get 'markdown-mode apheleia-mode-alist) 'prettier)
