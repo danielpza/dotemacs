@@ -130,6 +130,11 @@
   (unbind-key "C-k")
   (unbind-key "C-j"))
 
+(use-package ansi-color
+  ;; https://stackoverflow.com/a/71785402/6051261
+  :hook ((compilation-filter . ansi-color-compilation-filter)
+	 (shell-mode-hook . ansi-color-for-comint-mode-on)))
+
 (electric-pair-mode)
 
 (use-package dired
@@ -775,8 +780,6 @@ that replaces the form."
 (define-key leader-map (kbd "c b") 'typescript-to-browser-bookmark-to-clipboard)
 
 (define-key leader-map (kbd "c l") 'recenter)
-
-(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 
 ;; others
 
