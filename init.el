@@ -96,6 +96,7 @@
     (text-scale-set 0))
   :custom
   (auto-save-default nil)
+  (async-shell-command-buffer 'new-buffer)
   (create-lockfiles nil) ;; react issues
   (make-backup-files nil) ;; react issues
   (tab-always-indent 'complete)
@@ -372,6 +373,7 @@
 
 (use-package consult-flycheck
   :straight t
+  :after flycheck
   :bind
   (:map leader-map
 	("e c" . consult-flycheck)))
@@ -426,6 +428,13 @@
   :ensure-system-package
   ((epc . "pip install epc")
    (orjson . "pip install orjson"))
+  :custom
+  (acm-enable-yas nil)
+  :bind
+  (:map leader-map
+	("l g d" . lsp-bridge-find-def)
+	("l r s" . lsp-bridge-restart-process)
+	("l r r" . lsp-bridge-rename))
   :config
   (global-lsp-bridge-mode))
 ;;-lsp
