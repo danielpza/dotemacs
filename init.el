@@ -2,10 +2,6 @@
 (require 'early-init (concat user-emacs-directory "early-init.el"))
 ;; (setq debug-on-error t)
 
-(setq ring-bell-function 'ignore)
-
-(global-display-line-numbers-mode)
-
 ;;;+straight bootstrap
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -22,10 +18,13 @@
 (straight-use-package 'use-package)
 ;;-straight bootstrap
 
+;;; one of 'lsp-bridge, 'eglot, 'lsp-mode
+
+(setq lsp-package 'lsp-bridge)
+
 (setq leader-map (make-sparse-keymap)) ;; bind SPC-* keybindings here
 
 (use-package use-package-ensure-system-package
-  :disabled
   :straight t)
 
 ;; core emacs configuration
@@ -125,6 +124,8 @@
   :bind-keymap
   ("C-c SPC" . leader-map)
   :config
+  (setq ring-bell-function 'ignore)
+  (global-display-line-numbers-mode)
   (unbind-key "C-k")
   (unbind-key "C-j"))
 
@@ -182,6 +183,7 @@
   (mct-mode))
 
 (use-package corfu
+  :unless (equal lsp-package 'lsp-bridge)
   :straight t
   :custom
   (corfu-auto t)
@@ -328,7 +330,6 @@
 
 (use-package yaml-mode
   :straight t)
-
 ;;-languages
 
 (use-package flymake
@@ -377,6 +378,7 @@
 
 ;;+lsp
 (use-package eglot
+  :when (equal lsp-package 'eglot)
   :straight t
   ;; :ensure-system-package ((typescript-language-server . "npm install --global typescript-language-server")
   ;; 			  ;; (eslint-lsp . "npm install --global danielpza/eslint-lsp")
@@ -399,7 +401,7 @@
   (eglot-confirm-server-initiated-edits nil))
 
 (use-package lsp-mode
-  :disabled
+  :when (equal lsp-package 'lsp-mode)
   :straight t
   :hook ((js-mode typescript-mode lua-mode) . lsp-deferred)
   :custom
@@ -417,11 +419,20 @@
   ;; :custom
   ;; (lsp-ui-sideline-show-code-actions t)
   )
+
+(use-package lsp-bridge
+  :when (equal lsp-package 'lsp-bridge)
+  :straight '(lsp-bridge :host github :repo "manateelazycat/lsp-bridge" :files (:defaults "*.py" "acm"))
+  :ensure-system-package
+  ((epc . "pip install epc")
+   (orjson . "pip install orjson"))
+  :config
+  (global-lsp-bridge-mode))
 ;;-lsp
 
 (use-package consult-lsp
-  :disabled
   :straight t
+  :after lsp-mode
   :bind
   (:map lsp-command-map
 	([remap xref-find-apropos] . consult-lsp-symbols)
