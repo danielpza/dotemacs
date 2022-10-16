@@ -348,17 +348,17 @@
 	("e p" . my/flymake-goto-prev-important-error)
 	("e l" . flymake-show-diagnostics-buffer)))
 
-;; (use-package flymake-eslint
-;;   :disabled
-;;   :after flymake
-;;   :straight t
-;;   :init
-;;   (defun my/flymake-eslint-enable ()
-;;     (unless (string= (file-name-extension (buffer-file-name)) "json")
-;;       (flymake-eslint-enable)
-;;       ;; https://github.com/orzechowskid/flymake-eslint/issues/19#issuecomment-559833671
-;;       (setq-local flymake-eslint-project-root (locate-dominating-file buffer-file-name ".eslintrc"))))
-;;   :hook ((js-mode typescript-mode typescript-tsx-mode) . my/flymake-eslint-enable))
+(use-package flymake-eslint
+  :when (equal lsp-package 'lsp-bridge)
+  :after flymake
+  :straight t
+  :init
+  (defun my/flymake-eslint-enable ()
+    (unless (string= (file-name-extension (buffer-file-name)) "json")
+      (flymake-eslint-enable)
+      ;; https://github.com/orzechowskid/flymake-eslint/issues/19#issuecomment-559833671
+      (setq-local flymake-eslint-project-root (locate-dominating-file buffer-file-name ".eslintrc"))))
+  :hook ((js-mode typescript-mode typescript-tsx-mode) . my/flymake-eslint-enable))
 
 (use-package flycheck
   :disabled
@@ -433,8 +433,13 @@
   :bind
   (:map leader-map
 	("l g d" . lsp-bridge-find-def)
+	("l g r" . lsp-bridge-find-references)
+	("l g r" . lsp-bridge-find-references)
 	("l r s" . lsp-bridge-restart-process)
-	("l r r" . lsp-bridge-rename))
+	("l r r" . lsp-bridge-rename)
+	("l e p" . lsp-bridge-diagnostic-jump-prev)
+	("l e n" . lsp-bridge-diagnostic-jump-next)
+	)
   :config
   (global-lsp-bridge-mode))
 ;;-lsp
