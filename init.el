@@ -19,8 +19,7 @@
 ;;-straight bootstrap
 
 ;;; one of 'lsp-bridge, 'eglot, 'lsp-mode
-
-(setq lsp-package 'lsp-bridge)
+(setq lsp-package 'lsp-mode)
 
 (setq leader-map (make-sparse-keymap)) ;; bind SPC-* keybindings here
 
@@ -150,11 +149,11 @@
   :config
   (define-key leader-map (kbd "p") project-prefix-map))
 
-(use-package format-buffer
-  :load-path "modules"
-  :bind
-  (:map leader-map
-	("c f" . format-buffer)))
+;; (use-package format-buffer
+;;   :load-path "modules"
+;;   :bind
+;;   (:map leader-map
+;; 	("c f" . format-buffer)))
 
 ;;+base
 (use-package no-littering
@@ -194,10 +193,11 @@
   :custom
   (corfu-auto t)
   (corfu-auto-prefix 0)
+  (corfu-auto-delay 1)
   (corfu-quit-no-match 'separator)
+  :config
   (with-eval-after-load "eglot"
     (setq completion-category-overrides '((eglot (styles orderless)))))
-  :config
   (global-corfu-mode)
   (with-eval-after-load 'evil
     (define-key evil-insert-state-map (kbd "C-SPC") 'indent-for-tab-command)))
@@ -254,24 +254,23 @@
     (define-key leader-map (kbd "e c") 'consult-flymake)))
 
 (use-package apheleia
-  :straight '(apheleia :host github :repo "raxod502/apheleia")
+  :straight t
   :demand
-  :init
-  ;; https://github.com/raxod502/apheleia/issues/30#issuecomment-778150037
-  (defun shou/fix-apheleia-project-dir (orig-fn &rest args)
-    (let ((project (project-current)))
-      (if (not (null project))
-          (let ((default-directory (project-root project))) (apply orig-fn args))
-        (apply orig-fn args))))
-  (advice-add 'apheleia-format-buffer :around #'shou/fix-apheleia-project-dir)
-  (defun my/setup-format-buffer-apheleia()
-    ;; format with prettier if current mode is supported
-    (when (alist-get major-mode apheleia-mode-alist)
-      (setq-local format-buffer-fn 'apheleia-format-buffer)))
-  :hook (apheleia-mode . my/setup-format-buffer-apheleia)
+  :bind
+  (:map leader-map
+	("c f" . apheleia-format-buffer))
   :config
-  ;; https://github.com/radian-software/apheleia/pull/81
-  (setf (alist-get 'markdown-mode apheleia-mode-alist) 'prettier-markdown)
+  ;; (defun apheleia-indent-region+ (orig scratch callback)
+  ;;   (with-current-buffer scratch
+  ;;     (setq-local indent-line-function
+  ;;                 (buffer-local-value 'indent-line-function orig))
+  ;;     (indent-region (point-min)
+  ;;                    (point-max))
+  ;;     (funcall callback scratch)))
+
+  ;; (push '(indent-region . apheleia-indent-region+) apheleia-formatters)
+  ;; (push '(elisp-mode . indent-region) apheleia-mode-alist)
+  ;; (push '(lisp-interaction-mode . indent-region) apheleia-mode-alist)
   (apheleia-global-mode 1))
 ;;-base
 
@@ -291,39 +290,11 @@
 	("g l b" . magit-log-buffer-file)))
 
 ;;+languages
-(use-package tree-sitter
-  :straight t
-  :demand
-  :hook
-  (tree-sitter-mode . tree-sitter-hl-mode)
-  :config
-  (global-tree-sitter-mode))
-
-(use-package tree-sitter-langs :straight t)
-
-(use-package js
-  :mode (("\\.mjs\\'" . typescript-mode))
-  :custom
-  (js-indent-level 2))
+(use-package treesit)
 
 (use-package lua-mode
   :straight t
   :mode "\\.lua\\'")
-
-(use-package typescript-mode
-  :straight t
-  :mode (("\\.ts\\'" . typescript-mode)
-	 ("\\.tsx\\'" . typescript-tsx-mode))
-  :config
-  (define-derived-mode typescript-tsx-mode typescript-mode "tsx")
-  (with-eval-after-load 'tree-sitter-langs
-    ;; https://github.com/emacs-typescript/typescript.el/issues/4#issuecomment-873485004
-    (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-tsx-mode . tsx))))
-
-(use-package json-mode
-  :straight t
-  ;; :hook (json-mode . lsp-deferred)
-  )
 
 (use-package markdown-mode
   :straight t
@@ -386,12 +357,12 @@
 ;;+lsp
 (use-package eglot
   :when (equal lsp-package 'eglot)
-  :straight t
+  ;; :straight t
   ;; :ensure-system-package ((typescript-language-server . "npm install --global typescript-language-server")
   ;; 			  ;; (eslint-lsp . "npm install --global danielpza/eslint-lsp")
   ;; 			  )
-  :hook ((js-mode typescript-mode typescript-tsx-mode lua-mode) . my/eglot-ensure)
-  :init
+  :hook ((js-mode js-ts-mode typescript-ts-mode tsx-ts-mode lua-mode) . my/eglot-ensure)
+  :ini
   (defun my/eglot-ensure ()
     (eglot-ensure)
     (setq-local eglot-stay-out-of '(flymake))
@@ -410,7 +381,7 @@
 (use-package lsp-mode
   :when (equal lsp-package 'lsp-mode)
   :straight t
-  :hook ((js-mode typescript-mode lua-mode) . lsp-deferred)
+  :hook ((js-ts-mode tsx-ts-mode typescript-ts-mode lua-mode) . lsp-deferred)
   :custom
   (lsp-enable-snippet nil)
   :config
@@ -431,8 +402,8 @@
   :when (equal lsp-package 'lsp-bridge)
   :straight '(lsp-bridge :host github :repo "manateelazycat/lsp-bridge" :files (:defaults "*.py" "acm"))
   :ensure-system-package
-  ((epc . "pip install epc")
-   (orjson . "pip install orjson"))
+  ((epc . "pip install --user epc")
+   (orjson . "pip install --user orjson"))
   :custom
   (acm-enable-yas nil)
   :bind
@@ -806,3 +777,5 @@ that replaces the form."
 
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
+
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
