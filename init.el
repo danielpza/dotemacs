@@ -39,6 +39,9 @@
   (delete-selection-mode +1))
 
 (use-package emacs
+  :mode (("\\.js\\'" . js-ts-mode)
+	 ("\\.ts\\'" . tsx-ts-mode) ;; .ts is not working for me, but tsx is
+	 ("\\.json\\'" . json-ts-mode))
   :init
   (fset 'yes-or-no-p 'y-or-n-p)
   ;; https://emacsredux.com/blog/2013/05/18/instant-access-to-init-dot-el/
