@@ -778,6 +778,31 @@ that replaces the form."
   :config
   (yas-global-mode))
 
+(use-package transient
+  :straight t
+  :demand
+  :config
+  (transient-define-suffix yarn-transient--add-package-suffix (package)
+    :description "Add package"
+    (interactive "sPackage Name:")
+    (async-shell-command (concat "yarn add " package)))
+  (transient-define-suffix yarn-transient--install-suffix ()
+    :description "Install"
+    (interactive)
+    (async-shell-command "yarn install"))
+  (transient-define-prefix yarn-transient--add-package-prefix ()
+    [:class transient-columns
+	    ["Add Package"
+	     ("-d" "save dev"  ("-d" "--save-dev"))
+	     ("a" yarn-transient--add-package-suffix)]])
+  (transient-define-prefix yarn-transient ()
+    [:class transient-columns
+	    ["Commands"
+	     ("-w" "switch"  ("-w" "--switch"))
+	     ("i" yarn-transient--install-suffix)
+	     ("a" "Add package" yarn-transient--add-package-prefix)]])
+  (define-key leader-map (kbd "y") 'yarn-transient))
+
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
 
