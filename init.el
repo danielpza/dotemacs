@@ -276,6 +276,7 @@
   :straight t
   :custom
   (magit-save-repository-buffers nil)
+  (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
   :bind
   (:map leader-map
 	("g g" . magit-status)
