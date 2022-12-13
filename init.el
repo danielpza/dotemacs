@@ -213,13 +213,6 @@
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-(use-package company
-  :disabled
-  :straight t
-  :config
-  (global-company-mode)
-  (with-eval-after-load 'evil
-    (define-key evil-insert-state-map (kbd "C-SPC") 'company-complete)))
 
 (use-package marginalia
   :straight t
@@ -313,6 +306,7 @@
 ;;-languages
 
 (use-package flymake
+  :disabled
   :hook ((prog-mode . flymake-mode))
   :init
   (defun my/flymake-goto-next-important-error ()
@@ -340,7 +334,6 @@
   :hook ((js-mode typescript-mode typescript-tsx-mode) . my/flymake-eslint-enable))
 
 (use-package flycheck
-  :disabled
   :straight t
   :custom
   (flycheck-navigation-minimum-level 'warning)
@@ -365,7 +358,7 @@
   ;; 			  ;; (eslint-lsp . "npm install --global danielpza/eslint-lsp")
   ;; 			  )
   :hook ((js-mode js-ts-mode typescript-ts-mode tsx-ts-mode lua-mode) . my/eglot-ensure)
-  :ini
+  :init
   (defun my/eglot-ensure ()
     (eglot-ensure)
     (setq-local eglot-stay-out-of '(flymake))
