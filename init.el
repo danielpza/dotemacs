@@ -783,7 +783,11 @@ that replaces the form."
   :straight t
   :demand
   :config
-  (transient-define-suffix yarn-transient--add-package-suffix (package)
+  (transient-define-suffix yarn-transient--add-dev-dependency-suffix (package)
+    :description "Add package"
+    (interactive "sPackage Name:")
+    (async-shell-command (concat "yarn add --dev " package)))
+  (transient-define-suffix yarn-transient--add-dependency-suffix (package)
     :description "Add package"
     (interactive "sPackage Name:")
     (async-shell-command (concat "yarn add " package)))
@@ -791,17 +795,16 @@ that replaces the form."
     :description "Install"
     (interactive)
     (async-shell-command "yarn install"))
-  (transient-define-prefix yarn-transient--add-package-prefix ()
+  (transient-define-prefix yarn-transient--add-prefix ()
     [:class transient-columns
 	    ["Add Package"
-	     ("-d" "save dev"  ("-d" "--save-dev"))
-	     ("a" yarn-transient--add-package-suffix)]])
+	     ("a" "Add dependency" yarn-transient--add-dependency-suffix)
+	     ("d" "Add dev dependency" yarn-transient--add-dev-dependency-suffix)]])
   (transient-define-prefix yarn-transient ()
     [:class transient-columns
 	    ["Commands"
-	     ("-w" "switch"  ("-w" "--switch"))
 	     ("i" yarn-transient--install-suffix)
-	     ("a" "Add package" yarn-transient--add-package-prefix)]])
+	     ("a" "Add dependency" yarn-transient--add-prefix)]])
   (define-key leader-map (kbd "y") 'yarn-transient))
 
 ;; Make gc pauses faster by decreasing the threshold.
