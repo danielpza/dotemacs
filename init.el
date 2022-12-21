@@ -534,8 +534,9 @@
 
 (use-package doom-themes
   :straight t
-  :config
-  (load-theme 'doom-one t))
+  ;; :config
+  ;; (load-theme 'doom-one t)
+  )
 
 (use-package treemacs
   :straight t
@@ -817,7 +818,12 @@ that replaces the form."
 	     ("a" "Add dependency" node-transient--add-prefix)]])
   (define-key leader-map (kbd "y") 'node-transient))
 
+(use-package nimbus-theme
+  :straight t)
+
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
 
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
+
+(load-theme 'nimbus t)
