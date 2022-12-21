@@ -783,29 +783,39 @@ that replaces the form."
   :straight t
   :demand
   :config
-  (transient-define-suffix yarn-transient--add-dev-dependency-suffix (package)
-    :description "Add package"
-    (interactive "sPackage Name:")
-    (async-shell-command (concat "yarn add --dev " package)))
-  (transient-define-suffix yarn-transient--add-dependency-suffix (package)
-    :description "Add package"
-    (interactive "sPackage Name:")
-    (async-shell-command (concat "yarn add " package)))
-  (transient-define-suffix yarn-transient--install-suffix ()
+  (defvar node-install-command "npm ci")
+  (defvar node-add-command "npm install")
+  (defvar node-add-dev-command "npm install --save-dev")
+  (defvar node-remove-command "npm remove")
+  (add-to-list 'display-buffer-alist '("*Async Shell Command*" display-buffer-no-window (nil)))
+  (transient-define-suffix node-transient--remove-dependency-suffix (package)
+    :description "Remove dependencies"
+    (interactive "sDependencies:")
+    (async-shell-command (concat node-remove-command " " package)))
+  (transient-define-suffix node-transient--add-dev-dependency-suffix (package)
+    :description "Add dev dependency"
+    (interactive "sDev dependencies:")
+    (async-shell-command (concat node-add-dev-command " " package)))
+  (transient-define-suffix node-transient--add-dependency-suffix (package)
+    :description "Add dependency"
+    (interactive "sDependencies:")
+    (async-shell-command (concat node-add-command " " package)))
+  (transient-define-suffix node-transient--install-suffix ()
     :description "Install"
     (interactive)
-    (async-shell-command "yarn install"))
-  (transient-define-prefix yarn-transient--add-prefix ()
+    (async-shell-command node-install-command))
+  (transient-define-prefix node-transient--add-prefix ()
     [:class transient-columns
 	    ["Add Package"
-	     ("a" "Add dependency" yarn-transient--add-dependency-suffix)
-	     ("d" "Add dev dependency" yarn-transient--add-dev-dependency-suffix)]])
-  (transient-define-prefix yarn-transient ()
+	     ("a" "Add dependency" node-transient--add-dependency-suffix)
+	     ("d" "Add dev dependency" node-transient--add-dev-dependency-suffix)]])
+  (transient-define-prefix node-transient ()
     [:class transient-columns
 	    ["Commands"
-	     ("i" yarn-transient--install-suffix)
-	     ("a" "Add dependency" yarn-transient--add-prefix)]])
-  (define-key leader-map (kbd "y") 'yarn-transient))
+	     ("i" node-transient--install-suffix)
+	     ("r" node-transient--remove-dependency-suffix)
+	     ("a" "Add dependency" node-transient--add-prefix)]])
+  (define-key leader-map (kbd "y") 'node-transient))
 
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
