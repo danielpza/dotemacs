@@ -836,3 +836,26 @@ that replaces the form."
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 
 (load-theme 'nimbus t)
+
+(use-package org
+  :custom
+  (org-confirm-babel-evaluate nil)
+  :config
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)))
+  ;; (defun my/org-babel-insert-code-block ()
+  ;;   (interactive))
+  (evil-define-key 'normal org-mode-map (kbd "M-1") (lambda () (interactive) (org-cycle-global 100)))
+  (evil-define-key 'normal org-mode-map (kbd "M-2") 'org-fold-show-all)
+  (evil-define-key 'normal org-mode-map (kbd "M-3") 'org-fold-hide-block-all)
+  (evil-define-key 'normal org-mode-map (kbd "H") 'org-previous-visible-heading)
+  (evil-define-key 'normal org-mode-map (kbd "L") 'org-next-visible-heading)
+  (evil-define-key 'normal org-mode-map (kbd "M-k") 'org-metaup)
+  (evil-define-key 'normal org-mode-map (kbd "M-j") 'org-metadown)
+  (evil-define-key 'normal org-mode-map (kbd "M-l") 'org-metaright)
+  (evil-define-key 'normal org-mode-map (kbd "M-h") 'org-metaleft)
+  (evil-define-key 'normal org-mode-map (kbd "M-K") 'org-shiftmetaup)
+  (evil-define-key 'normal org-mode-map (kbd "M-J") 'org-shiftmetadown)
+  (evil-define-key 'normal org-mode-map (kbd "M-L") 'org-shiftmetaright)
+  (evil-define-key 'normal org-mode-map (kbd "M-H") 'org-shiftmetaleft))
