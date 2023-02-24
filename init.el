@@ -835,7 +835,6 @@ that replaces the form."
 
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 
-(load-theme 'nimbus t)
 
 (use-package org
   :custom
@@ -859,3 +858,5 @@ that replaces the form."
   (evil-define-key 'normal org-mode-map (kbd "M-J") 'org-shiftmetadown)
   (evil-define-key 'normal org-mode-map (kbd "M-L") 'org-shiftmetaright)
   (evil-define-key 'normal org-mode-map (kbd "M-H") 'org-shiftmetaleft))
+
+(load-theme 'ef-dark t)
