@@ -832,6 +832,12 @@ that replaces the form."
 
 (use-package dockerfile-mode
   :straight t)
+
+(use-package find-file-rg
+  :straight t
+  :bind
+  ([remap project-find-file] . find-file-rg))
+
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
 
