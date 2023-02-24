@@ -848,6 +848,11 @@ that replaces the form."
   :config
   (add-to-list 'auto-mode-alist (cons "/.*ignore\\'" 'gitignore-mode)) )
 
+(use-package zoom
+  :straight t
+  :custom
+  (zoom-size '(0.618 . 0.618)))
+
 (use-package org
   :custom
   (org-confirm-babel-evaluate nil)
