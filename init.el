@@ -96,6 +96,15 @@
   (defun my/text-scale-reset ()
     (interactive)
     (text-scale-set 0))
+  ;; https://stackoverflow.com/a/24809045/6051261
+  (defun my/text-scale-increase ()
+    (interactive)
+    (let ((old-face-attribute (face-attribute 'default :height)))
+      (set-face-attribute 'default nil :height (+ old-face-attribute 10))))
+  (defun my/text-scale-decrease ()
+    (interactive)
+    (let ((old-face-attribute (face-attribute 'default :height)))
+      (set-face-attribute 'default nil :height (- old-face-attribute 10))))
   :custom
   (auto-save-default nil)
   (async-shell-command-buffer 'new-buffer)
@@ -104,8 +113,8 @@
   (tab-always-indent 'complete)
   :bind
   ("<f6>" . load-theme)
-  ("C--" . text-scale-decrease)
-  ("C-+" . text-scale-increase)
+  ("C--" . my/text-scale-decrease)
+  ("C-+" . my/text-scale-increase)
   ("C-=" . my/text-scale-reset)
   (:map leader-map
 	("SPC" . execute-extended-command)
