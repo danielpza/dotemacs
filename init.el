@@ -843,6 +843,10 @@ that replaces the form."
 
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 
+(use-package git-modes
+  :straight t
+  :config
+  (add-to-list 'auto-mode-alist (cons "/.*ignore\\'" 'gitignore-mode)) )
 
 (use-package org
   :custom
