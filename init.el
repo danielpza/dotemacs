@@ -269,6 +269,14 @@
   (:map leader-map
 	("c f" . apheleia-format-buffer))
   :config
+  (defun shou/fix-apheleia-project-dir (orig-fn &rest args)
+    (let ((project (project-current)))
+      (if (not (null project))
+          (let ((default-directory (project-root project))) (apply orig-fn args))
+        (apply orig-fn args))))
+
+  (advice-add 'apheleia-format-buffer :around #'shou/fix-apheleia-project-dir)
+
   ;; (defun apheleia-indent-region+ (orig scratch callback)
   ;;   (with-current-buffer scratch
   ;;     (setq-local indent-line-function
