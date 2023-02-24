@@ -41,7 +41,15 @@
 (use-package emacs
   :mode (("\\.js\\'" . js-ts-mode)
 	 ("\\.ts\\'" . tsx-ts-mode) ;; .ts is not working for me, but tsx is
-	 ("\\.json\\'" . json-ts-mode))
+	 ("\\.json\\'" . json-ts-mode)
+	 (".*rc\\'" . json-ts-mode))
+  :custom
+  (js-indent-level 2)
+  (auto-save-default nil)
+  (async-shell-command-buffer 'new-buffer)
+  (create-lockfiles nil) ;; react issues
+  (make-backup-files nil) ;; react issues
+  (tab-always-indent 'complete)
   :init
   (fset 'yes-or-no-p 'y-or-n-p)
   ;; https://emacsredux.com/blog/2013/05/18/instant-access-to-init-dot-el/
@@ -105,12 +113,6 @@
     (interactive)
     (let ((old-face-attribute (face-attribute 'default :height)))
       (set-face-attribute 'default nil :height (- old-face-attribute 10))))
-  :custom
-  (auto-save-default nil)
-  (async-shell-command-buffer 'new-buffer)
-  (create-lockfiles nil) ;; react issues
-  (make-backup-files nil) ;; react issues
-  (tab-always-indent 'complete)
   :bind
   ("<f6>" . load-theme)
   ("C--" . my/text-scale-decrease)
@@ -125,6 +127,8 @@
 	("f r" . recentf-open-files)
 	("f D" . my/delete-file-and-buffer)
 	("f R" . spacemacs/rename-current-buffer-file)
+
+	("a s" . eshell)
 
 	("d d" . my/find-user-init-file)
 
