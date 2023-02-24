@@ -876,4 +876,14 @@ that replaces the form."
   (evil-define-key 'normal org-mode-map (kbd "M-L") 'org-shiftmetaright)
   (evil-define-key 'normal org-mode-map (kbd "M-H") 'org-shiftmetaleft))
 
+(use-package highlight-indent-guides
+  :straight t
+  :hook ((prog-mode . highlight-indent-guides-mode)
+	 (org-mode . highlight-indent-guides-mode)
+	 (yaml-mode . highlight-indent-guides-mode))
+  :custom
+  (highlight-indent-guides-responsive 'top)
+  (highlight-indent-guides-method 'character))
+
+
 (load-theme 'ef-dark t)
