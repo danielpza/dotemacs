@@ -482,7 +482,7 @@
     (evil-define-key '(normal visual) leader-mode-map (kbd "SPC") leader-map))
   :config
   ;; https://emacs.stackexchange.com/a/20717/15986
-  (defalias #'forward-evil-word #'forward-evil-symbol)
+  ;; (defalias #'forward-evil-word #'forward-evil-symbol)
   (setq-default evil-symbol-word-search t)
   (define-key leader-map (kbd "w") evil-window-map)
   (unbind-key "C-f" evil-motion-state-map)
