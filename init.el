@@ -140,6 +140,7 @@
   :bind-keymap
   ("C-c SPC" . leader-map)
   :config
+  (add-to-list 'interpreter-mode-alist '("node" . tsx-ts-mode))
   (setq ring-bell-function 'ignore)
   (global-display-line-numbers-mode)
   (unbind-key "C-k")
