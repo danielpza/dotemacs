@@ -145,17 +145,27 @@
   (unbind-key "C-k")
   (unbind-key "C-j"))
 
+(use-package dired
+  :bind
+  (:map leader-map
+	("a d" . dired))
+  :config
+  (setq dired-kill-when-opening-new-dired-buffer t) ; added in emacs 28
+  (setq dired-clean-confirm-killing-deleted-buffers nil)
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  ;; (setq delete-by-moving-to-trash t)
+  (setq dired-dwim-target t)
+  (setq dired-listing-switches "-1hogp --group-directories-first --time-style=long-iso")
+  (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+  )
+
 (use-package ansi-color
   ;; https://stackoverflow.com/a/71785402/6051261
   :hook ((compilation-filter . ansi-color-compilation-filter)
 	 (shell-mode-hook . ansi-color-for-comint-mode-on)))
 
 (electric-pair-mode)
-
-(use-package dired
-  :bind
-  (:map leader-map
-	("a d" . dired)))
 
 (use-package help
   :config
