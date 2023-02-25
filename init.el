@@ -410,9 +410,10 @@
 (use-package lsp-mode
   :when (equal lsp-package 'lsp-mode)
   :straight t
-  :hook ((js-ts-mode tsx-ts-mode typescript-ts-mode lua-mode) . lsp-deferred)
+  :hook ((js-ts-mode tsx-ts-mode json-ts-mode typescript-ts-mode lua-mode python-mode) . lsp-deferred)
   :custom
-  (lsp-enable-snippet nil)
+  (lsp-javascript-display-inlay-hints t)
+  (lsp-enable-snippet t)
   (lsp-completion-provider :none)
   :config
   (setq lsp-log-io nil) ; if set to true can cause a performance hit
