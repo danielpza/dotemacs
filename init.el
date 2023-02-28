@@ -227,7 +227,7 @@
     (setq completion-category-overrides '((eglot (styles orderless)))))
   (global-corfu-mode)
   (with-eval-after-load 'evil
-    (define-key evil-insert-state-map (kbd "C-SPC") 'indent-for-tab-command)))
+    (define-key evil-insert-state-map (kbd "C-SPC") 'completion-at-point)))
 
 (use-package kind-icon
   :straight t
