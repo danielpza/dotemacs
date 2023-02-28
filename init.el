@@ -909,5 +909,7 @@ that replaces the form."
   (highlight-indent-guides-responsive 'top)
   (highlight-indent-guides-method 'character))
 
+(use-package kaolin-themes
+  :straight t)
 
-(load-theme 'ef-dark t)
+(load-theme 'kaolin-dark t)
