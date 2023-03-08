@@ -51,7 +51,7 @@
   (async-shell-command-buffer 'new-buffer)
   (create-lockfiles nil) ;; react issues
   (make-backup-files nil) ;; react issues
-  (tab-always-indent 'complete)
+  ;; (tab-always-indent 'complete)
   :init
   (fset 'yes-or-no-p 'y-or-n-p)
   ;; https://emacsredux.com/blog/2013/05/18/instant-access-to-init-dot-el/
@@ -305,7 +305,6 @@
 ;;-base
 
 ;;+magit
-
 (use-package magit
   :straight t
   :custom
