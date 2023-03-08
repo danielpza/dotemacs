@@ -146,7 +146,8 @@
   :bind-keymap
   ("C-c SPC" . leader-map)
   :config
-  (add-to-list 'interpreter-mode-alist '("node" . tsx-ts-mode))
+  (add-to-list 'interpreter-mode-alist '("node" . typescript-ts-mode))
+  (add-to-list 'interpreter-mode-alist '("zx" . typescript-ts-mode))
   (setq ring-bell-function 'ignore)
   (global-display-line-numbers-mode)
   (unbind-key "C-k")
@@ -890,7 +891,8 @@ that replaces the form."
   :config
   (org-babel-do-load-languages
    'org-babel-load-languages
-   '((shell . t)))
+   '((js . t)
+     (shell . t)))
   ;; (defun my/org-babel-insert-code-block ()
   ;;   (interactive))
   (evil-define-key '(normal insert) org-mode-map (kbd "M-1") (lambda () (interactive) (org-cycle-global 100)))
