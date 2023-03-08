@@ -604,6 +604,7 @@
 (use-package diff-hl
   :straight t
   :demand
+  :after (magit)
   :bind
   (:map leader-map
 	("g [" . diff-hl-previous-hunk)
@@ -622,6 +623,7 @@
 
 (use-package hydra
   :straight t
+  :after (centaur-tabs)
   :config
   (defhydra hydra-zoom (leader-map "B")
     "buffer"
