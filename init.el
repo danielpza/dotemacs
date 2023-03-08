@@ -40,8 +40,10 @@
 
 (use-package emacs
   :mode (("\\.js\\'" . js-ts-mode)
-	 ("\\.ts\\'" . tsx-ts-mode) ;; .ts is not working for me, but tsx is
+	 ("\\.ts\\'" . typescript-ts-mode)
 	 ("\\.json\\'" . json-ts-mode)
+	 ("\\.yml\\'" . yaml-ts-mode)
+	 ("\\.yaml\\'" . yaml-ts-mode)
 	 (".*rc\\'" . json-ts-mode))
   :custom
   (js-indent-level 2)
@@ -334,8 +336,8 @@
   :straight t
   :after markdown-mode)
 
-(use-package yaml-mode
-  :straight t)
+;; (use-package yaml-mode
+;;   :straight t)
 ;;-languages
 
 (use-package flymake
@@ -904,7 +906,7 @@ that replaces the form."
   :straight t
   :hook ((prog-mode . highlight-indent-guides-mode)
 	 (org-mode . highlight-indent-guides-mode)
-	 (yaml-mode . highlight-indent-guides-mode))
+	 (yaml-ts-mode . highlight-indent-guides-mode))
   :custom
   (highlight-indent-guides-responsive 'top)
   (highlight-indent-guides-method 'character))
