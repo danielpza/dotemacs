@@ -412,7 +412,7 @@
 (use-package lsp-mode
   :when (equal lsp-package 'lsp-mode)
   :straight t
-  :hook ((js-ts-mode tsx-ts-mode json-ts-mode typescript-ts-mode lua-mode python-mode yaml-mode) . lsp-deferred)
+  :hook ((js-ts-mode tsx-ts-mode json-ts-mode typescript-ts-mode lua-mode python-mode yaml-ts-mode) . lsp-deferred)
   :custom
   (lsp-javascript-display-inlay-hints t)
   (lsp-enable-snippet t)
