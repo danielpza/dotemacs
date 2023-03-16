@@ -44,6 +44,7 @@
 
 (use-package emacs
   :mode (("\\.js\\'" . js-ts-mode)
+	 ("\\.tsx\\'" . tsx-ts-mode)
 	 ("\\.ts\\'" . typescript-ts-mode)
 	 ("\\.json\\'" . json-ts-mode)
 	 ("\\.yml\\'" . yaml-ts-mode)
@@ -312,6 +313,7 @@
 ;;+magit
 (use-package magit
   :straight t
+  :demand
   :custom
   (magit-save-repository-buffers nil)
   (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
@@ -416,7 +418,7 @@
 (use-package lsp-mode
   :when (equal lsp-package 'lsp-mode)
   :straight t
-  :hook ((js-ts-mode tsx-ts-mode json-ts-mode typescript-ts-mode lua-mode python-mode yaml-ts-mode) . lsp-deferred)
+  :hook ((js-ts-mode tsx-ts-mode json-ts-mode typescript-ts-mode lua-mode python-mode yaml-ts-mode scss-mode css-mode) . lsp-deferred)
   :custom
   (lsp-javascript-display-inlay-hints t)
   (lsp-enable-snippet t)
@@ -535,9 +537,6 @@
 ;;   :config
 ;;   (evil-lion-mode))
 ;;-evil
-
-(with-eval-after-load 'evil
-  (my/setup-evil-leader-key))
 
 ;;+visual
 (use-package dashboard
@@ -801,6 +800,12 @@ that replaces the form."
 
 (define-key leader-map (kbd "c l") 'recenter)
 
+(defun my/magit-org-dir ()
+  (interactive)
+  (magit-status (cdr (assq :dir (org-babel-parse-header-arguments (org-entry-get-with-inheritance "header-args"))))))
+
+(define-key leader-map (kbd "g o") 'my/magit-org-dir)
+
 ;; others
 
 (use-package dirvish
@@ -870,11 +875,6 @@ that replaces the form."
   :bind
   ([remap project-find-file] . find-file-rg))
 
-;; Make gc pauses faster by decreasing the threshold.
-(setq gc-cons-threshold (* 2 1000 1000))
-
-(setq read-process-output-max (* 1024 1024)) ;; 1mb
-
 (use-package git-modes
   :straight t
   :config
@@ -888,6 +888,7 @@ that replaces the form."
 (use-package org
   :custom
   (org-confirm-babel-evaluate nil)
+  (org-use-property-inheritance t)
   :config
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -898,8 +899,8 @@ that replaces the form."
   (evil-define-key '(normal insert) org-mode-map (kbd "M-1") (lambda () (interactive) (org-cycle-global 100)))
   (evil-define-key '(normal insert) org-mode-map (kbd "M-2") 'org-fold-show-all)
   (evil-define-key '(normal insert) org-mode-map (kbd "M-3") 'org-fold-hide-block-all)
-  (evil-define-key '(normal insert) org-mode-map (kbd "H") 'org-previous-visible-heading)
-  (evil-define-key '(normal insert) org-mode-map (kbd "L") 'org-next-visible-heading)
+  (evil-define-key '(normal) org-mode-map (kbd "H") 'org-previous-visible-heading)
+  (evil-define-key '(normal) org-mode-map (kbd "L") 'org-next-visible-heading)
   (evil-define-key '(normal insert) org-mode-map (kbd "M-k") 'org-metaup)
   (evil-define-key '(normal insert) org-mode-map (kbd "M-j") 'org-metadown)
   (evil-define-key '(normal insert) org-mode-map (kbd "M-l") 'org-metaright)
@@ -921,4 +922,17 @@ that replaces the form."
 (use-package kaolin-themes
   :straight t)
 
+(use-package git-timemachine
+  :straight t)
+
 (load-theme 'kaolin-dark t)
+
+(set-face-attribute 'default nil :height 160)
+
+(with-eval-after-load 'evil
+  (my/setup-evil-leader-key))
+
+;; Make gc pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))
+
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
