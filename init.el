@@ -288,6 +288,13 @@
   (:map leader-map
 	("c f" . apheleia-format-buffer))
   :config
+  (add-hook 'json-ts-mode-hook 'my/set-package-json-apheleia-formatter)
+
+  (defun my/set-package-json-apheleia-formatter ()
+    "Set the apheleia formatter to json-stringnify for package.json file."
+    (when (equal (file-name-nondirectory (buffer-file-name)) "package.json")
+      (setq apheleia-formatter 'prettier-json-stringify)))
+
   (defun shou/fix-apheleia-project-dir (orig-fn &rest args)
     (let ((project (project-current)))
       (if (not (null project))
