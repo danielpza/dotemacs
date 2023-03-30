@@ -915,7 +915,8 @@ that replaces the form."
   (evil-define-key '(normal insert) org-mode-map (kbd "M-K") 'org-shiftmetaup)
   (evil-define-key '(normal insert) org-mode-map (kbd "M-J") 'org-shiftmetadown)
   (evil-define-key '(normal insert) org-mode-map (kbd "M-L") 'org-shiftmetaright)
-  (evil-define-key '(normal insert) org-mode-map (kbd "M-H") 'org-shiftmetaleft))
+  (evil-define-key '(normal insert) org-mode-map (kbd "M-H") 'org-shiftmetaleft)
+  (add-hook 'org-mode-hook 'flyspell-mode))
 
 (use-package highlight-indent-guides
   :straight t
