@@ -931,7 +931,10 @@ that replaces the form."
   :straight t)
 
 (use-package git-timemachine
-  :straight t)
+  :straight t
+  :bind
+  (:map leader-map
+	("g t" . git-timemachine)))
 
 (load-theme 'kaolin-dark t)
 
