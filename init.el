@@ -930,6 +930,17 @@ that replaces the form."
 (use-package kaolin-themes
   :straight t)
 
+(defun my/sort-package-json ()
+  "Run sort-package-json npm cli package on current buffer."
+  (interactive)
+  (shell-command-to-string (format "sort-package-json %s" buffer-file-name)))
+
+(defun my/sort-package-json-after-save ()
+  (when (equal (file-name-nondirectory (buffer-file-name)) "package.json")
+    (my/sort-package-json)))
+
+(add-hook 'after-save-hook #'my/sort-package-json-after-save)
+
 (use-package git-timemachine
   :straight t
   :bind
